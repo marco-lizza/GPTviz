@@ -1,15 +1,19 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 
 class AppModel(QObject):
+    
     # Segnali per notificare i cambiamenti
     data_changed = pyqtSignal(list)      # Emesso quando la lista file cambia
     log_message = pyqtSignal(str)        # Emesso quando c'è un nuovo log
     processing_done = pyqtSignal(str)    # Emesso quando un calcolo finisce
 
+    open_options = pyqtSignal() 
+
     def __init__(self):
         super().__init__()
         self._items = []  # Il nostro "Database" interno
 
+    
     def add_item(self, item_name):
         """Aggiunge un elemento alla logica e notifica gli ascoltatori."""
         if item_name not in self._items:
@@ -25,3 +29,6 @@ class AppModel(QObject):
         self.log_message.emit(f"Modello: Elaborazione di {item_name} in corso...")
         result = f"Risultato ({item_name}) [OK]"
         self.processing_done.emit(result)
+
+    def open_option(self):
+        self.open_options.emit()

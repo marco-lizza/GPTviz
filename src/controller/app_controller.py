@@ -1,32 +1,20 @@
+from .top_menu_controller import Top_menu_controller
+from .toolbar_controller import Toolbar_controller
+from .sidebar_controller import Sidebar_controller
+from .console_controller import Console_controller
+from .workspace_controller import Workspace_controller
+
 class AppController:
     def __init__(self, model, view):
         self.model = model
         self.view = view
 
-        # --- CONNESSIONI (BINDING) ---
+        self.top_menu_ctrl=Top_menu_controller(model,view.top_menu)
+        self.toolbar_ctrl=Toolbar_controller(model,view.toolbar)
+        self.sidebar_ctrl=Sidebar_controller(model,view.sidebar)
+        self.console_ctrl=Console_controller(model,view.console)
+        self.workspace_ctrl=Workspace_controller(model,view.workspace)
+        self.set_up_binding()
 
-        # Connessioni dall view al controller
-        self.view.import_requested.connect(self.handle_import)
-        self.view.process_requested.connect(self.handle_process)
-
-        # Connessioni indirette dal modello alla view
-
-        # Quando il modello cambia la lista -> aggiorna sidebar
-        self.model.data_changed.connect(self.view.update_sidebar)
-        # Quando il modello ha un log -> scrivi in console
-        self.model.log_message.connect(self.view.update_console)
-        # Quando il modello finisce un calcolo -> aggiorna workspace
-        self.model.processing_done.connect(self.view.update_workspace)
-
-    def handle_import(self):
-        """ESEMPIO : Logica di controllo per l'importazione."""
-        import random
-        fake_files = ["Dato1.csv", "Dato2.csv", "Dato3.csv"]
-        new_item = random.choice(fake_files)
-        
-        # Chiede al modello di aggiungere i dati
-        self.model.add_item(new_item)
-
-    def handle_process(self, item_name):
-        """ESEMPIO : Logica di controllo per l'elaborazione."""
-        self.model.perform_operation(item_name)
+    def set_up_binding(self):
+        self.model.open_options.connect(self.view.open_options_dialog)
