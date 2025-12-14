@@ -17,3 +17,6 @@ class ConsoleView(QTextEdit):
     def append_log(self, text):
         """Metodo pubblico per aggiungere testo formattato"""
         self.append(f">> {text}")
+
+    def clear_console(self):
+        self.clear()

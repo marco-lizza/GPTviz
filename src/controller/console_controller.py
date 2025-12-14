@@ -7,6 +7,7 @@ class Console_controller:
 
     def set_up_binding(self):
         self.model.log_message.connect(self.update_console)
+        self.model.erase_console.connect(self.console_view.clear_console)
 
     def update_console(self, message: str):
         self.console_view.append_log(message)

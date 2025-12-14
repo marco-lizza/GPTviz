@@ -1,10 +1,11 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 
 class AppModel(QObject):
-    
+
     # Segnali per notificare i cambiamenti
     data_changed = pyqtSignal(list)      # Emesso quando la lista file cambia
     log_message = pyqtSignal(str)        # Emesso quando c'è un nuovo log
+    erase_console=pyqtSignal()
     processing_done = pyqtSignal(str)    # Emesso quando un calcolo finisce
 
     open_options = pyqtSignal() 
@@ -32,3 +33,7 @@ class AppModel(QObject):
 
     def open_option(self):
         self.open_options.emit()
+
+    def clear_console(self):
+        #.... logica legata a una classe console da creare 
+        self.erase_console.emit()
