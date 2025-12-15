@@ -15,7 +15,7 @@ class TopMenuBar(QMenuBar):
         self.setup_console_menu()
 
     def setup_file_menu(self):
-        
+        # --- MENU FILE ---
         file_menu = self.addMenu("File")
 
         action_open = QAction("Apri...", self)

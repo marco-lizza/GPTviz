@@ -6,7 +6,4 @@ class Workspace_controller:
         self.set_up_binding()
 
     def set_up_binding(self):
-        self.model.processing_done.connect(self.update_workspace)
-
-    def update_workspace(self, result_text: str):
-        self.workspace_view.show_result(result_text)
+       pass

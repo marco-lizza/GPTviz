@@ -9,7 +9,7 @@ class ConsoleView(QTextEdit):
             QTextEdit {
                 background-color: #1e1e1e; 
                 color: #00ff00; 
-                font-family: Consolas, Monospace; 
+                font-family: Arial; 
                 border-top: 2px solid #333;
             }
         """)

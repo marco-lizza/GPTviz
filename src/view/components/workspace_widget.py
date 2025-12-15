@@ -13,7 +13,7 @@ class WorkspaceView(QFrame):
         self.layout.setContentsMargins(0, 0, 0, 0)
         
         # Placeholder iniziale
-        self.label = QLabel("Nessun elemento selezionato")
+        self.label = QLabel("Nessuna head selezionata")
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.label.setStyleSheet("color: #666; font-size: 24px; font-weight: bold;")
         

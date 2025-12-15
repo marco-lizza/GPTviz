@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QToolBar
 
 class Toolbar(QToolBar):
 
-    import_requested = pyqtSignal()
+    load_file_names = pyqtSignal()
     clear_console = pyqtSignal()
 
     def __init__(self):
@@ -14,16 +14,9 @@ class Toolbar(QToolBar):
     def setup_ui(self):
         self.setMovable(False) # Blocca la toolbar in alto
 
-        # Azione Importa
-        btn_import = QAction("Importa", self)
-        btn_import.setStatusTip("Importa un nuovo file dati")
-        # Lambda per emettere il segnale custom senza parametri extra
-        btn_import.triggered.connect(lambda: self.import_requested.emit())
-        self.addAction(btn_import)
+        btn_load= QAction("Ricarica Workspace", self)
+        btn_load.setStatusTip("Visualizza i file presenti nel workspace")
+        btn_load.triggered.connect(lambda: self.load_file_names.emit())
+        self.addAction(btn_load)
 
-        self.addSeparator()
-
-        # Azione Pulisci Console (Logica UI locale, non serve disturbare il controller)
-        btn_clear = QAction("Clear Log", self)
-        #btn_clear.triggered.connect(self.console.clear)
-        self.addAction(btn_clear)
+        #self.addSeparator()
