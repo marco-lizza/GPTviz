@@ -1,6 +1,6 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 from .data.attention_loader import Attention_loader
-from .data.attention import Attention_data
+import torch
 
 class AppModel(QObject):
 
@@ -11,6 +11,8 @@ class AppModel(QObject):
     erase_console=pyqtSignal()
     attentions_loaded = pyqtSignal(list) 
     open_options = pyqtSignal() 
+    head_matrix_loaded=pyqtSignal(torch.Tensor)
+    clear_workspace=pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -34,8 +36,12 @@ class AppModel(QObject):
             self.attentions_loaded.emit(self.actual_attentions.get_metadata())
             self.log_message.emit("Caricamento file completato")
             self.log_message.emit(self.actual_attentions.info())
+            self.clear_workspace.emit()
         except Exception as e:
             self.log_message.emit(e)
+
+    def get_head(self,iter_idx, lev_idx, head_idx):
+        self.head_matrix_loaded.emit(self.actual_attentions.get_matrix(iter_idx, lev_idx, head_idx))
         
     def open_option(self):
         self.open_options.emit()

@@ -6,7 +6,7 @@ class Attention_data:
     Mantiene la struttura gerarchica e fornisce metodi di accesso.
     """
     def __init__(self, raw_data, metadata=None):
-        self._data = raw_data  # Struttura: [iteration][level][head] -> matrix
+        self._data = raw_data
         self.metadata = metadata or {}
 
     def get_data(self):
@@ -18,17 +18,56 @@ class Attention_data:
 
     def get_matrix(self, iteration_idx, level_idx, head_idx, as_tensor=True):
         """
-        Recupera la matrice di attention specifica per iterazione, livello e head.
+        Recupera la matrice di attention.
+        
+        - Se iteration_idx == 0: Restituisce la matrice del prompt.
+        - Se iteration_idx > 0: RICOSTRUISCE la matrice accumulando la storia 
+          dall'iterazione 0 fino a quella richiesta.
+        
         """
         try:
-            matrix_data = self._data[iteration_idx][level_idx][head_idx]
-            
-            if as_tensor:
-                return torch.tensor(matrix_data)
-            return matrix_data
-            
+            base_data = self._data[0][level_idx][head_idx]
+            base_tensor = torch.tensor(base_data)
         except IndexError:
-            raise IndexError(f"Indici fuori range: Iter={iteration_idx}, Level={level_idx}, Head={head_idx}")
+            raise IndexError(f"Dati non trovati per Level={level_idx}, Head={head_idx} all'iterazione 0.")
+
+        if iteration_idx == 0:
+            return base_tensor if as_tensor else base_tensor.tolist()
+
+        # SE RICHIESTA ITERAZIONE > 0: Inizia la ricostruzione
+        rows = []
+
+        for i in range(base_tensor.shape[0]):
+            rows.append(base_tensor[i])
+
+        for i in range(1, iteration_idx + 1):
+            try:
+                step_data = self._data[i][level_idx][head_idx]
+                step_tensor = torch.tensor(step_data)
+                
+                if step_tensor.dim() > 1:
+                    step_tensor = step_tensor.squeeze()
+                
+                rows.append(step_tensor)
+            except IndexError:
+                 break
+
+        if not rows:
+            return torch.empty(0)
+
+        max_seq_len = len(rows[-1])
+        total_rows = len(rows)
+
+        full_matrix = torch.zeros((total_rows, max_seq_len))
+
+        for i, row in enumerate(rows):
+            current_len = len(row)
+            full_matrix[i, :current_len] = row
+
+        if as_tensor:
+            return full_matrix
+        else:
+            return full_matrix.tolist()
 
     def get_level_tensor(self, iteration_idx, level_idx):
         try:

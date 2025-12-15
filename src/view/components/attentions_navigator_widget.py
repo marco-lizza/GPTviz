@@ -60,7 +60,6 @@ class Attention_navigator_widget(QTreeWidget):
             head_idx = item.data(0, Qt.ItemDataRole.UserRole + 3)
             
             self.head_clicked.emit(iter_idx, lev_idx, head_idx)
-            print(f"Selezionato: Iter {iter_idx}, Livello {lev_idx}, Head {head_idx}")
 
     def update_sidebar(self, num_iterations,num_levels,num_heads):
         self.clear()

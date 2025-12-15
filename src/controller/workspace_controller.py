@@ -6,4 +6,5 @@ class Workspace_controller:
         self.set_up_binding()
 
     def set_up_binding(self):
-       pass
+       self.model.head_matrix_loaded.connect(self.workspace_view.visualize_attentions_matrix)
+       self.model.clear_workspace.connect(self.workspace_view.reset_view)
