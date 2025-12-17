@@ -1,72 +1,85 @@
-from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel
+from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel, QTabWidget
 from PyQt6.QtCore import Qt
-import matplotlib
-matplotlib.use('QtAgg')
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
 
-class MplCanvas(FigureCanvas):
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
-        plt.style.use('dark_background') 
-        self.fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = self.fig.add_subplot(111)
-        self.fig.patch.set_facecolor('#333333')
-        self.axes.set_facecolor('#333333')
-        super().__init__(self.fig)
+from .attention_heatmap_tab import AttentionHeatmapView
+from .tokens_attention_tab import TokenAttentionView
 
 class WorkspaceView(QFrame):
     def __init__(self):
         super().__init__()
         
-        self.setStyleSheet("background-color: #333333;")
+        # Stile globale per il Workspace e i Tab
+        self.setStyleSheet("""
+            QFrame { background-color: #333333; }
+            QTabWidget::pane { border: 1px solid #444; }
+            QTabBar::tab {
+                background: #2b2b2b;
+                color: #aaa;
+                padding: 8px 12px;
+                border: 1px solid #444;
+                margin-right: 2px;
+            }
+            QTabBar::tab:selected {
+                background: #444;
+                color: white;
+                border-bottom: 2px solid #0078d7;
+            }
+        """)
         
-        self.layout = QVBoxLayout()
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(self.layout)
+        self.main_layout = QVBoxLayout()
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self.main_layout)
         
-        self.current_widget = None
+        self.heatmap_view = None
+        self.token_view = None
+        self.tabs = None
+        
         self.reset_view()
 
     def reset_view(self):
-        self._clear_content() # Rimuove grafico o label precedente
+        """Torna allo stato 'Nessuna head selezionata'."""
+        self._clear_main_layout()
         
         label = QLabel("Nessuna head selezionata")
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        label.setStyleSheet("color: #666; font-size: 24px; font-weight: bold;")
+        label.setStyleSheet("color: #666; font-size: 24px; font-weight: bold; border: none;")
+        self.main_layout.addWidget(label)
         
-        self.layout.addWidget(label)
-        self.current_widget = label
+        self.heatmap_view = None
+        self.token_view = None
+        self.tabs = None
 
     def visualize_attentions_matrix(self, attention_tensor):
-        """
-        Visualizza la matrice (o il grafico).
-        """
+        """Gestisce il passaggio alla modalità Tab e delega l'aggiornamento ai figli."""
         if attention_tensor is None:
             return
 
-        self._clear_content()
-        matrix_np = attention_tensor.detach().cpu().squeeze().numpy()
+        if self.tabs is None:
+            self._switch_to_tab_mode()
 
-        canvas = MplCanvas(self, width=5, height=4, dpi=100)
+        if self.heatmap_view:
+            self.heatmap_view.update_data(attention_tensor)
         
-        # Disegno Heatmap
-        im = canvas.axes.imshow(matrix_np, aspect='auto', cmap='viridis', interpolation='nearest')
-        canvas.fig.colorbar(im, ax=canvas.axes)
+        if self.token_view:
+            self.token_view.update_data(attention_tensor)
+
+    def _switch_to_tab_mode(self):
+        """Costruisce i Tab e istanzia i componenti figli."""
+        self._clear_main_layout()
         
-        # Styling assi
-        canvas.axes.set_title("Attention Head Heatmap", color='white')
-        canvas.axes.tick_params(colors='#aaaaaa')
+        self.tabs = QTabWidget()
+        self.main_layout.addWidget(self.tabs)
+        
+        self.heatmap_view = AttentionHeatmapView()
+        self.token_view = TokenAttentionView()
+        
+        self.tabs.addTab(self.heatmap_view, "Heatmap")
+        self.tabs.addTab(self.token_view, "Tokens Attention")
 
-        # Aggiunta al layout
-        self.layout.addWidget(canvas)
-        self.current_widget = canvas
-
-    def _clear_content(self):
-        """
-        Rimuove SOLO il widget contenuto nel layout, senza distruggere il layout stesso.
-        """
-        if self.current_widget is not None:
-            self.layout.removeWidget(self.current_widget)
-            self.current_widget.deleteLater() # Cancella dalla memoria
-            self.current_widget = None
+    def _clear_main_layout(self):
+        """Svuota il layout principale."""
+        while self.main_layout.count():
+            item = self.main_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
