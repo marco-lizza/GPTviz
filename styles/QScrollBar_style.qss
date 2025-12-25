@@ -1,0 +1,58 @@
+/* --- REGOLE COMUNI--- */
+QScrollBar:vertical,
+QScrollBar:horizontal {{
+    border: none;
+    background: transparent;
+    margin: 0px;
+}}
+
+/* --- REGOLE SPECIFICHE VERTICALE --- */
+QScrollBar:vertical {{
+    width: 12px;
+}}
+
+QScrollBar::handle:vertical {{
+    background: {secondary_color}; 
+    min-height: 30px;
+    border-radius: 5px;
+    margin-top: 0px;
+    margin-left: 1px;
+    margin-right: 1px;
+    margin-bottom: 0px;
+}}
+
+/* --- REGOLE SPECIFICHE ORIZZONTALE --- */
+QScrollBar:horizontal {{
+    height: 12px;
+}}
+
+QScrollBar::handle:horizontal {{
+    background: {secondary_color};
+    min-width: 30px;
+    border-radius: 5px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 1px;
+    margin-right: 1px;
+}}
+
+/* --- STATI COMUNI (Hover) --- */
+QScrollBar::handle:vertical:hover,
+QScrollBar::handle:horizontal:hover {{
+    background: {terziary_color};
+}}
+
+/* --- PULIZIA PULSANTI (Frecce) --- */
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical,
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{
+    border: none;
+    background: none;
+    height: 0px;
+    width: 0px;
+}}
+
+/* Rimuovo lo sfondo del binario */
+ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical,
+ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {{
+    background: none;
+}}

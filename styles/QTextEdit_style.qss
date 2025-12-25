@@ -1,0 +1,18 @@
+QTextEdit {{
+    background-color: {bg_dark};
+    color: {text_main};
+    
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    
+    border: none;
+    border-top: 2px solid {border_console};
+    
+    padding: 10px;
+    outline: none;
+    selection-background-color: {primary_color};
+    selection-color: #ffffff;
+    margin-bottom:1px;
+    margin-left:1px;
+    margin-right:1px;
+}}

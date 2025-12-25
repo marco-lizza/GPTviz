@@ -1,14 +1,24 @@
-import sys
 import numpy as np
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QListWidget, QSplitter, QGraphicsView, 
                              QGraphicsScene, QGraphicsEllipseItem, 
                              QGraphicsLineItem, QGraphicsTextItem)
-from PyQt6.QtCore import Qt, QRectF
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPen, QBrush, QColor, QFont, QPainter
+
+from src.config import settings
 
 # --- Classe di supporto per rendere il grafo zoomabile e trascinabile ---
 class ZoomableGraphicsView(QGraphicsView):
+    """
+    Estensione di QGraphicsView che abilita l'interazione avanzata (Zoom & Pan).
+
+    Permette all'utente di navigare nel grafo generato usando:
+    1. **Rotellina del mouse**: Per zoomare avanti/indietro.
+    2. **Click e trascinamento (Drag)**: Per spostarsi nella scena (Panning).
+    
+    Attiva automaticamente l'Antialiasing per linee e cerchi più morbidi.
+    """
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -17,8 +27,11 @@ class ZoomableGraphicsView(QGraphicsView):
         self.setResizeAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
 
     def wheelEvent(self, event):
+        """
+        Gestisce lo zoom centrato sulla posizione del mouse.
+        """
         # Gestione dello zoom con la rotellina
-        zoom_in_factor = 1.15
+        zoom_in_factor = settings.ZOOM_FACTOR
         zoom_out_factor = 1 / zoom_in_factor
 
         if event.angleDelta().y() > 0:
@@ -26,8 +39,23 @@ class ZoomableGraphicsView(QGraphicsView):
         else:
             self.scale(zoom_out_factor, zoom_out_factor)
 
+
 class TokenAttentionView(QWidget):
+    """
+    Vista analitica per esplorare le relazioni 'Uno-a-Molti' tra i token.
+    
+    Layout:
+        - **Sinistra (Lista)**: Elenco di tutti i token disponibili.
+        - **Destra (Grafo)**: Visualizzazione a nodi con collegamenti pesati.
+
+    Attributes:
+        attention_tensor (np.array): La matrice di attenzione caricata (NxN).
+        k (int): Numero di connessioni più forti da visualizzare (Top-K).
+        scene (QGraphicsScene): Il contenitore degli oggetti grafici (nodi, linee).
+    """
+
     def __init__(self, parent=None):
+        """Inizializza l'interfaccia divisa (Splitter) e la scena grafica."""
         super().__init__(parent)
         
         self.attention_tensor = None
@@ -38,7 +66,7 @@ class TokenAttentionView(QWidget):
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
         main_layout.addWidget(self.splitter)
 
-        # SEZIONE SINISTRA: Lista dei Token
+        # --- SEZIONE SINISTRA: Lista dei Token ---
         self.left_widget = QWidget()
         left_layout = QVBoxLayout(self.left_widget)
         left_layout.setContentsMargins(0, 0, 0, 0)
@@ -53,7 +81,7 @@ class TokenAttentionView(QWidget):
         
         self.splitter.addWidget(self.left_widget)
 
-        # SEZIONE DESTRA: Visualizzazione Grafo
+        # --- SEZIONE DESTRA: Visualizzazione Grafo ---
         self.right_widget = QWidget()
         right_layout = QVBoxLayout(self.right_widget)
         right_layout.setContentsMargins(0, 0, 0, 0)
@@ -61,6 +89,7 @@ class TokenAttentionView(QWidget):
         self.scene = QGraphicsScene()
         self.view = ZoomableGraphicsView(self.scene)
         
+        # Placeholder visibile quando nessun token è selezionato
         self.placeholder_label = QLabel("Seleziona un token dalla lista")
         self.placeholder_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.placeholder_label.setStyleSheet("color: #888; font-style: italic; font-size: 14px;")
@@ -68,18 +97,16 @@ class TokenAttentionView(QWidget):
         right_layout.addWidget(self.placeholder_label)
         right_layout.addWidget(self.view)
         
-        self.view.hide()
+        self.view.hide() # Nascosto inizialmente
         
         self.splitter.addWidget(self.right_widget)
         
-        # Impostiamo una dimensione iniziale (es. 30% lista, 70% grafo)
         self.splitter.setSizes([200, 600])
 
-    def update_data(self, attention_tensor, k=10):
+    def update_data(self, attention_tensor, k=settings.K_VALUE):
         """
-        Aggiorna la vista con una nuova matrice di attenzione e il parametro k.
-        attention_tensor: numpy array o lista di liste (N x N)
-        k: intero, quanti top-token mostrare
+        Carica nuovi dati e rigenera la lista dei token.
+
         """
         self.attention_tensor = np.array(attention_tensor)
         self.k = k
@@ -91,13 +118,18 @@ class TokenAttentionView(QWidget):
         self.placeholder_label.setText(f"Dati caricati. Seleziona un token (Top-{k})")
 
         # PARTE DA AGGIORNARE CON NOMI CORRETTI DEI TOKEN 
+        # Attualmente usa indici numerici come placeholder per i token reali
         if self.attention_tensor is not None:
             num_tokens = self.attention_tensor.shape[0]
             for i in range(num_tokens):
                 self.token_list.addItem(f"Token {i}")
 
     def on_token_clicked(self, item):
-        """Gestisce il click su un token della lista"""
+        """
+        Callback invocato al click su un elemento della lista.
+        
+        Avvia il disegno del grafo.
+        """
         if self.attention_tensor is None:
             return
 
@@ -108,38 +140,53 @@ class TokenAttentionView(QWidget):
         
         self.draw_graph(source_index=row)
 
-    def draw_graph(self, source_index):
-        """Disegna il grafo: Token Sorgente -> Linee -> Top K Token Target"""
+    def draw_graph(self, source_index: int):
+        """
+        Costruisce e disegna il grafo 'Source-to-Targets'.
+
+        Algoritmo di visualizzazione:
+        1. Estrae la riga di attenzione corrispondente al `source_index`.
+        2. Identifica i `k` indici con valore più alto (Top-K) usando `argsort`.
+        3. Disegna il nodo sorgente a sinistra (Blu).
+        4. Disegna i nodi target a destra (Verde), impilati verticalmente.
+        5. Disegna linee di collegamento con spessore proporzionale al peso dell'attenzione.
+
+        Args:
+            source_index (int): L'indice del token selezionato nella lista.
+        """
         self.scene.clear()
         
         # Recupero la riga di attenzione per il token selezionato
         attention_row = self.attention_tensor[source_index]
         
-        # Troviamo i Top K 
+        # Troviamo i Top K (Gestisco anche il caso in cui ci sono meno token di K)
         num_tokens = len(attention_row)
         effective_k = min(self.k, num_tokens)
         
+        # argsort restituisce indici crescenti, prendiamo gli ultimi k e invertiamo
         top_indices = np.argsort(attention_row)[-effective_k:][::-1]
         
-        center_x, center_y = 0, 0  # Posizione del token sorgente
-        target_x_offset = 300      # Distanza orizzontale dei target
-        target_spacing_y = 80      # Distanza verticale tra i target
+        # Parametri geometrici
+        center_x, center_y = 0, 0  # Posizione sorgente
+        target_x_offset = 300      # Distanza target
+        target_spacing_y = 80      # Spaziatura verticale target
         node_radius = 25
         
-        # Disegno Token Sorgente
+        # Disegno Token Sorgente (Blu)
         source_color = QColor("#3498db")
         self._add_node(center_x, center_y, node_radius, f"{source_index}", source_color, is_source=True)
 
-        # Disegno Token Target e Linee
+        # Calcolo posizione verticale iniziale per centrare i target rispetto alla sorgente
         start_y = -((effective_k - 1) * target_spacing_y) / 2
         
+        # Ciclo di disegno Target e Archi
         for i, target_idx in enumerate(top_indices):
             weight = attention_row[target_idx]
             target_y = start_y + (i * target_spacing_y)
             
-            target_color = QColor("#2ecc71") 
+            target_color = QColor("#2ecc71") # Verde
             
-            # Disegno la linea di connessione (spessore basato sul peso)
+            # Disegno la linea di connessione 
             line_pen = QPen(Qt.GlobalColor.gray)
             line_width = 1 + (weight * 10)
             line_pen.setWidthF(min(line_width, 5.0))
@@ -149,43 +196,45 @@ class TokenAttentionView(QWidget):
             line.setPen(line_pen)
             self.scene.addItem(line)
             
-            # Aggiungo etichetta peso sulla linea
+            # Aggiungo etichetta numerica del peso sulla linea
             weight_text = QGraphicsTextItem(f"{weight:.2f}")
             weight_text.setFont(QFont("Arial", 8))
+            # Posiziono il testo a metà strada
             weight_text.setPos(center_x + (target_x_offset/2) - 10, (center_y + target_y)/2 - 10)
             self.scene.addItem(weight_text)
 
             # Disegno nodo target
             self._add_node(target_x_offset, target_y, node_radius, f"{target_idx}", target_color)
 
-        # Resetta la vista per inquadrare tutto
+        # Resetta la vista per inquadrare tutti gli oggetti creati
         self.view.setSceneRect(self.scene.itemsBoundingRect())
 
     def _add_node(self, x, y, r, text, color, is_source=False):
-        """Helper per disegnare un cerchio con testo"""
+        """
+        Helper method per disegnare un nodo (cerchio + testo + etichetta).
+
+        Crea un `QGraphicsEllipseItem` per il cerchio e `QGraphicsTextItem`
+        per il contenuto testuale, aggiungendoli alla scena corrente.
+        """
+        # Cerchio colorato
         ellipse = QGraphicsEllipseItem(x - r, y - r, r * 2, r * 2)
         ellipse.setBrush(QBrush(color))
         ellipse.setPen(QPen(Qt.GlobalColor.black))
         
-        """ 
-        Flag per rendere i nodi movibili singolarmente (opzionale)
-        ellipse.setFlag(QGraphicsEllipseItem.GraphicsItemFlag.ItemIsMovable)
-        ellipse.setFlag(QGraphicsEllipseItem.GraphicsItemFlag.ItemIsSelectable)
-        """
         self.scene.addItem(ellipse)
         
-        # Testo dentro il nodo
+        # Testo centrale (Indice Token)
         text_item = QGraphicsTextItem(text)
         font = QFont("Arial", 10, QFont.Weight.Bold)
         text_item.setFont(font)
         
-        # Centrare il testo
+        # Centratura testo nel cerchio
         text_rect = text_item.boundingRect()
         text_item.setPos(x - text_rect.width() / 2, y - text_rect.height() / 2)
         
         self.scene.addItem(text_item)
         
-        # Etichetta sotto il nodo per chiarire
+        # Etichetta descrittiva sotto il nodo (Source/Target)
         desc = "Source" if is_source else "Target"
         desc_item = QGraphicsTextItem(desc)
         desc_item.setFont(QFont("Arial", 8))

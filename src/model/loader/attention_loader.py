@@ -1,0 +1,172 @@
+import os
+import pyarrow as pa
+import torch
+
+from .metadata_scanner import MetadataScanner
+from .arrow_tensor_accessor import ArrowTensorAccessor
+
+class Attention_loader:
+    """
+    Gestore ad alto livello per il caricamento e la ricostruzione delle matrici di attenzione.
+    
+    Il suo compito principale è astrarre la complessità dello storage (file Arrow frammentati)
+    e fornire al resto dell'applicazione matrici complete e ricostruite, pronte 
+    per essere visualizzate.
+
+    Attributes:
+        base_path (str): Il percorso radice del workspace contenente i dati.
+        scanner (MetadataScanner): Componente helper per l'indicizzazione dei file.
+    """
+
+    def __init__(self, base_path="workspace/"):
+        """
+        Inizializza il loader e lo scanner dei metadati.
+
+        Args:
+            base_path (str): Directory radice dove cercare i file `.arrow`.
+        """
+        self.base_path = base_path
+        self.scanner = MetadataScanner(base_path)
+        
+        # Stato interno per la gestione del file aperto (Handle)
+        self._current_filename = None
+        self._accessor = None # Istanza di ArrowTensorAccessor
+        self._source = None   # File handle (Memory Mapped File)
+
+    def get_files_by_domain(self):
+        """
+        Recupera la struttura gerarchica dei file organizzati per dominio.
+        
+        Delegato allo scanner, utile per popolare menu o alberi di navigazione.
+
+        Returns:
+            Dict: Un dizionario {Dominio: [lista_file, ...]}.
+        """
+        return self.scanner.scan_domains()
+
+    def _ensure_file_open(self, filename: str):
+        """
+        Gestisce l'apertura intelligente (Lazy Loading) del file richiesto.
+        
+        Se il file richiesto è già aperto, non fa nulla. Se è diverso da quello
+        attualmente in uso, chiude il precedente e apre il nuovo.
+
+        Args:
+            filename (str): Il nome del file da aprire (risolto poi dallo scanner).
+
+        Raises:
+            FileNotFoundError: Se il file non esiste nel percorso risolto.
+        """
+        if self._current_filename == filename and self._accessor is not None:
+            return
+
+        # Chiude il precedente se esiste per liberare risorse
+        if self._source: 
+            self._source.close()
+
+        full_path = self.scanner._resolve_path(filename)
+        if not os.path.exists(full_path):
+            raise FileNotFoundError(f"File non trovato: {full_path}")
+
+        # Apertura e creazione dell'Accessor
+        # Memory Map permette di caricare file più grandi della RAM disponibile
+        self._source = pa.memory_map(full_path, 'r')
+        reader = pa.ipc.open_file(self._source)
+        table = reader.read_all()
+        
+        # Deleghiamo la complessità di navigazione all'Accessor
+        self._accessor = ArrowTensorAccessor(table)
+        self._current_filename = filename
+
+    def get_metadata_only(self, filename: str):
+        """
+        Recupera i metadati (es. numero livelli, teste) senza caricare i tensori.
+
+        Args:
+            filename (str): Nome del file target.
+
+        Returns:
+            Dict: Metadati strutturali del file.
+        """
+        return self.scanner.get_metadata(filename)
+
+    def get_reconstructed_matrix(self, filename: str, target_iter: int, level_idx: int, head_idx: int) -> torch.Tensor:
+        """
+        Ricostruisce la matrice di attenzione completa fino a una specifica iterazione.
+
+        L'attenzione è spesso salvata in modo incrementale:
+        1. Iterazione 0: Matrice completa del Prompt (NxN).
+        2. Iterazione 1..K: Singoli vettori riga aggiunti per ogni token generato.
+
+        Questo metodo assembla questi pezzi in un'unica matrice quadrata (o rettangolare)
+        rappresentante lo stato dell'attenzione al passo `target_iter`.
+
+        Algoritmo:
+            1. Carica la matrice base (Prompt) dall'iterazione 0.
+            2. Crea una matrice di zeri ("Canvas") di dimensione `(Prompt + Target)`.
+            3. Copia la base nel quadrante in alto a sinistra.
+            4. Itera da 1 a `target_iter`, recupera i vettori riga e li inserisce
+               nelle posizioni corrispondenti.
+
+        Args:
+            filename (str): Il file dati da interrogare.
+            target_iter (int): L'iterazione di generazione fino alla quale ricostruire.
+            level_idx (int): Indice del layer.
+            head_idx (int): Indice della testa.
+
+        Returns:
+            torch.Tensor: Matrice 2D (Float32) contenente l'attenzione ricostruita.
+
+        Raises:
+            IndexError: Se `target_iter` supera il numero di righe disponibili nel file.
+        """
+        self._ensure_file_open(filename)
+        
+        # Controllo limiti usando l'accessor
+        if target_iter >= self._accessor.num_rows:
+            raise IndexError(f"Iterazione {target_iter} fuori range (Max: {self._accessor.num_rows - 1}).")
+
+        # Recupero Prompt (Iter 0) - La base su cui costruire
+        base_tensor = self._accessor.get_tensor(0, level_idx, head_idx)
+        
+        # Se è richiesto solo il prompt, ritorna subito
+        if target_iter == 0:
+            return base_tensor
+
+        # Setup Canvas (Matrice vuota)
+        prompt_len = base_tensor.shape[0]
+        final_len = prompt_len + target_iter
+        
+        full_matrix = torch.zeros((final_len, final_len), dtype=torch.float32)
+        
+        # Inserisce il prompt nell'angolo in alto a sinistra
+        full_matrix[:prompt_len, :prompt_len] = base_tensor
+        
+        # Ciclo di riempimento (Stitching)
+        for i in range(1, target_iter + 1):
+            # Recupera il vettore riga per il token generato all'iterazione 'i'
+            row_tensor = self._accessor.get_tensor(i, level_idx, head_idx)
+        
+            if row_tensor.dim() == 2:
+                row_tensor = row_tensor.squeeze(0)
+            
+            # Posizionamento nella matrice globale
+            current_len = row_tensor.shape[0]
+            row_pos = prompt_len + i - 1
+            
+            # Safe slice: assicura di non sbordare se il tensore è più lungo della matrice allocata
+            safe_len = min(current_len, final_len)
+            
+            full_matrix[row_pos, :safe_len] = row_tensor[:safe_len]
+
+        return full_matrix
+
+    def close(self):
+        """
+        Chiude il file memory-mapped e rilascia le risorse.  
+        """
+        if self._source:
+            self._source.close()
+            self._source = None
+            self._accessor = None
+            self._current_filename = None

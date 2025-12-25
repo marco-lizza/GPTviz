@@ -1,18 +1,80 @@
-class Attention_navigator_controller:
+from src.model.app_model import AppModel
+from src.view.components.attentions_navigator_widget import Attention_navigator_widget
 
-    def __init__(self, model, attention_navigator_view):
+class Attention_navigator_controller:
+    """
+    Gestisce la logica del navigatore delle 'Attention Heads' 
+
+    Questo controller agisce da intermediario tra il modello dati (che contiene 
+    i tensori e le matrici di attenzione) e la vista che permette di navigare 
+    tra le varie iterazioni, livelli e teste.
+
+    Attributes:
+        model (AppModel): Riferimento al modello dati principale dell'applicazione.
+        attention_navigator_view (Attention_navigator_widget): La vista specifica che mostra
+            l'albero di navigazione delle teste.
+    """
+
+    def __init__(self, model:AppModel, attention_navigator_view:Attention_navigator_widget):
+        """
+        Inizializza il controller del navigatore e configura i listener.
+
+        Args:
+            model (AppModel): L'istanza del modello dati condiviso.
+            attention_navigator_view (Attention_navigator_widget): L'istanza del widget/vista UI del navigatore.
+        """
         self.model = model
         self.attention_navigator_view = attention_navigator_view
 
         self.set_up_binding()
 
     def set_up_binding(self):
+        """
+        Configura le connessioni bidirezionali (segnali/slot) tra Modello e Vista.
+
+        Stabilisce due flussi di comunicazione:
+        1. Modello -> Vista: Quando i dati vengono caricati (`attentions_loaded`), 
+           aggiorna la UI.
+        2. Vista -> Modello: Quando l'utente clicca una testa (`head_clicked`), 
+           richiede al modello di recuperare i dati specifici.
+        """
+        # Quando il modello ha finito di caricare i dati, aggiorna la vista
         self.model.attentions_loaded.connect(self.update_attention_navigator)
+        
+        # Quando l'utente clicca sulla vista, notifica il controller di procedere con il reperimento delle informazioni
         self.attention_navigator_view.head_clicked.connect(self.head_clicked)
 
-    def update_attention_navigator(self,attention_metadata):
-        self.attention_navigator_view.update_sidebar(attention_metadata[0],attention_metadata[1],attention_metadata[2])
+    def update_attention_navigator(self, attention_metadata: dict):
+        """
+        Aggiorna la struttura visuale del navigatore in base ai metadati ricevuti.
 
-    def head_clicked(self,iter_idx, lev_idx, head_idx):
+        Viene chiamata automaticamente quando il segnale `attentions_loaded` viene
+        emesso dal modello.
+
+        Args:
+            attention_metadata (dict): Un dizionario contenente la struttura topologica 
+                dell'attenzione caricata. Deve contenere le chiavi:
+                * 'num_iterations': (int) Numero totale di iterazioni.
+                * 'num_levels': (int) Numero di livelli (layers) del modello.
+                * 'num_heads': (int) Numero di teste di attenzione per livello.
+        """
+        self.attention_navigator_view.update_sidebar(
+            attention_metadata.get("num_iterations"),
+            attention_metadata.get("num_levels"),
+            attention_metadata.get("num_heads")
+        )
+
+    def head_clicked(self, iter_idx: int, lev_idx: int, head_idx: int):
+        """
+        Gestisce l'evento di selezione di una specifica testa di attenzione.
+
+        Questo metodo viene invocato dalla vista quando l'utente clicca su un 
+        elemento specifico della navigazione. Inoltra la richiesta al modello 
+        per recuperare o visualizzare i dati di quella testa.
+
+        Args:
+            iter_idx (int): Indice dell'iterazione selezionata.
+            lev_idx (int): Indice del livello (layer) selezionato.
+            head_idx (int): Indice della testa (head) selezionata.
+        """
         self.model.get_head(iter_idx, lev_idx, head_idx)
-

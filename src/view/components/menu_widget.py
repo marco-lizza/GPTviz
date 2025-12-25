@@ -1,75 +1,84 @@
-from PyQt6.QtWidgets import QMenuBar
-from PyQt6.QtGui import QAction ,QKeySequence
+from PyQt6.QtWidgets import QMenuBar, QFileDialog, QMenu
+from PyQt6.QtGui import QAction, QKeySequence
 from PyQt6.QtCore import pyqtSignal
 
 class TopMenuBar(QMenuBar):
+    """
+    Gestisce la barra dei menu superiore dell'applicazione.
+
+    Questa classe definisce la struttura gerarchica dei menu (GPTViz, File, Console)
+    e le relative azioni. Non esegue logica di business diretta, ma emette segnali
+    quando l'utente clicca su una voce, delegando l'azione al Controller.
+
+    Signals:
+        open_options (None): Emesso quando si clicca su "Preferences/Options".
+        action_exit (None): Emesso quando si richiede la chiusura (non ancora collegato).
+        clear_console (None): Emesso quando si clicca su "Pulisci Console".
+        load_file_names (None): Emesso per ricaricare la lista file nel workspace.
+    """
 
     open_options = pyqtSignal()
     action_exit = pyqtSignal()
     clear_console = pyqtSignal()
+    load_file_names = pyqtSignal()
 
     def __init__(self):
+        """
+        Inizializza la barra dei menu e costruisce le sottosezioni.
+        """
         super().__init__()
+        
+        self.setup_gptviz_menu()
         self.setup_file_menu()
-        self.setup_options_menu()
         self.setup_console_menu()
 
     def setup_file_menu(self):
+        """
+        Configura il menu 'File'.
+
+        Azioni incluse:
+        * **Import...** (Ctrl+I): Placeholder per importazione dati ( DA DEFINIRE)
+        * **Reload workspace...** (Ctrl+R): Emette `load_file_names` per aggiornare la sidebar.
+        """
         # --- MENU FILE ---
         file_menu = self.addMenu("File")
 
-        action_open = QAction("Apri...", self)
-        action_open.setShortcut(QKeySequence.StandardKey.Open)
-        file_menu.addAction(action_open)
-
-        action_save = QAction("Salva", self)
-        action_save.setShortcut(QKeySequence.StandardKey.Save)
-        file_menu.addAction(action_save)
-
-        action_save_as = QAction("Salva come...", self)
-        action_save_as.setShortcut(QKeySequence.StandardKey.SaveAs)
-        file_menu.addAction(action_save_as)
+        self.import_file = QAction("Import...", self)
+        self.import_file.setShortcut("Ctrl+I") 
+        file_menu.addAction(self.import_file)
 
         file_menu.addSeparator()
 
-        action_import = QAction("Importa...", self)
-        action_import.setShortcut("Ctrl+I")
-        file_menu.addAction(action_import)
+        self.load_files_in_workspace = QAction("Reload workspace...", self)
+        self.load_files_in_workspace.setShortcut("Ctrl+R") 
+        
+        # Connessione del segnale
+        self.load_files_in_workspace.triggered.connect(self.load_file_names.emit)
+        file_menu.addAction(self.load_files_in_workspace)
 
-        action_export = QAction("Esporta...", self)
-        action_export.setShortcut("Ctrl+E")
-        file_menu.addAction(action_export)
+    def setup_gptviz_menu(self):
+        """
+        Configura il menu 'GPTViz' (Menu applicazione).
 
-        file_menu.addSeparator()
+        Azioni incluse:
+        * **Preferences...**: Apre il dialog delle opzioni.
 
-        action_exit = QAction("Esci", self)
-        action_exit.setShortcut(QKeySequence.StandardKey.Quit)
-        action_exit.setMenuRole(QAction.MenuRole.NoRole) 
-        file_menu.addAction(action_exit)
+        """
+        # --- MENU GPTviz ---
+        gptviz_menu = self.addMenu("GPTViz")
 
-    def setup_options_menu(self):
-        # --- MENU OPZIONI ---
-        options_menu = self.addMenu("Opzioni")
-
-        self.action_grid = QAction("Mostra Griglia", self)
-        self.action_grid.setCheckable(True)  
-        self.action_grid.setChecked(True)  
-        self.action_grid.triggered.connect(self.toggle_grid)
-        options_menu.addAction(self.action_grid)
-
-        self.action_auto_update = QAction("Aggiornamento Automatico", self)
-        self.action_auto_update.setCheckable(True)
-        self.action_auto_update.setChecked(False)
-        self.action_auto_update.triggered.connect(self.toggle_update)
-        options_menu.addAction(self.action_auto_update)
-
-        options_menu.addSeparator()
-
-        action_other = QAction("Altro...", self)
-        action_other.triggered.connect(self.open_options.emit)
-        options_menu.addAction(action_other)
+        self.action_other = QAction("Preferences...", self)
+        self.action_other.triggered.connect(self.open_options.emit)
+        gptviz_menu.addAction(self.action_other)
 
     def setup_console_menu(self):
+        """
+        Configura il menu 'Console'.
+
+        Azioni incluse:
+        * **Pulisci Console** (Ctrl+L): Pulisce l'output della console.
+        * **Salva log Console** (Ctrl+S): Placeholder per il salvataggio su file. ( DA DEFINIRE )
+        """
         # --- MENU CONSOLE ---
         console_menu = self.addMenu("Console")
 
@@ -84,12 +93,3 @@ class TopMenuBar(QMenuBar):
         self.action_save_console.setShortcut("Ctrl+S") 
     
         console_menu.addAction(self.action_save_console)
-        
-
-
-    def toggle_grid(self, checked):
-        state = "ATTIVA" if checked else "DISATTIVA"
-        print(f"Griglia {state}")
-
-    def toggle_update(self, checked):
-        print(f"Aggiornamento automatico: {checked}")
