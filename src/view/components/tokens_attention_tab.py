@@ -1,9 +1,9 @@
 import numpy as np
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QListWidget, QSplitter, QGraphicsView, 
-                             QGraphicsScene, QGraphicsEllipseItem, 
+                             QGraphicsScene, QGraphicsRectItem, 
                              QGraphicsLineItem, QGraphicsTextItem)
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt,pyqtSignal
 from PyQt6.QtGui import QPen, QBrush, QColor, QFont, QPainter
 
 from src.config import settings
@@ -19,6 +19,7 @@ class ZoomableGraphicsView(QGraphicsView):
     
     Attiva automaticamente l'Antialiasing per linee e cerchi più morbidi.
     """
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -103,7 +104,7 @@ class TokenAttentionView(QWidget):
         
         self.splitter.setSizes([200, 600])
 
-    def update_data(self, attention_tensor, k=settings.K_VALUE):
+    def update_data(self, attention_tensor, tokens, k=settings.K_VALUE):
         """
         Carica nuovi dati e rigenera la lista dei token.
 
@@ -111,18 +112,17 @@ class TokenAttentionView(QWidget):
         self.attention_tensor = np.array(attention_tensor)
         self.k = k
         
+        self.tokens=tokens
         self.token_list.clear()
         self.scene.clear()
         self.view.hide()
         self.placeholder_label.show()
         self.placeholder_label.setText(f"Dati caricati. Seleziona un token (Top-{k})")
 
-        # PARTE DA AGGIORNARE CON NOMI CORRETTI DEI TOKEN 
-        # Attualmente usa indici numerici come placeholder per i token reali
         if self.attention_tensor is not None:
             num_tokens = self.attention_tensor.shape[0]
             for i in range(num_tokens):
-                self.token_list.addItem(f"Token {i}")
+                self.token_list.addItem(tokens[i])
 
     def on_token_clicked(self, item):
         """
@@ -134,13 +134,13 @@ class TokenAttentionView(QWidget):
             return
 
         row = self.token_list.row(item)
-        
+
         self.placeholder_label.hide()
         self.view.show()
-        
-        self.draw_graph(source_index=row)
+    
+        self.draw_graph(row,item.text())
 
-    def draw_graph(self, source_index: int):
+    def draw_graph(self,source_index,source_name: str):
         """
         Costruisce e disegna il grafo 'Source-to-Targets'.
 
@@ -174,7 +174,7 @@ class TokenAttentionView(QWidget):
         
         # Disegno Token Sorgente (Blu)
         source_color = QColor("#3498db")
-        self._add_node(center_x, center_y, node_radius, f"{source_index}", source_color, is_source=True)
+        self._add_node(center_x, center_y, node_radius,source_name, source_color, is_source=True)
 
         # Calcolo posizione verticale iniziale per centrare i target rispetto alla sorgente
         start_y = -((effective_k - 1) * target_spacing_y) / 2
@@ -204,7 +204,7 @@ class TokenAttentionView(QWidget):
             self.scene.addItem(weight_text)
 
             # Disegno nodo target
-            self._add_node(target_x_offset, target_y, node_radius, f"{target_idx}", target_color)
+            self._add_node(target_x_offset, target_y, node_radius, self.tokens[target_idx], target_color)
 
         # Resetta la vista per inquadrare tutti gli oggetti creati
         self.view.setSceneRect(self.scene.itemsBoundingRect())
@@ -217,7 +217,7 @@ class TokenAttentionView(QWidget):
         per il contenuto testuale, aggiungendoli alla scena corrente.
         """
         # Cerchio colorato
-        ellipse = QGraphicsEllipseItem(x - r, y - r, r * 2, r * 2)
+        ellipse = QGraphicsRectItem(x - r, y - r, r * 2, r * 2)
         ellipse.setBrush(QBrush(color))
         ellipse.setPen(QPen(Qt.GlobalColor.black))
         

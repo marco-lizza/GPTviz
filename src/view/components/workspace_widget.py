@@ -65,11 +65,11 @@ class WorkspaceView(QFrame):
         self.main_layout.addWidget(label)
         
         # Resetta i riferimenti per liberare memoria e indicare lo stato inattivo
-        self.heatmap_view = None
-        self.token_view = None
+        self.heatmap_view = AttentionHeatmapView()
+        self.token_view = TokenAttentionView()
         self.tabs = None
 
-    def visualize_attentions_matrix(self, attention_tensor):
+    def visualize_attentions_matrix(self, attention_tensor,token_list):
         """
         Riceve i dati e passa allo stato 'Visualization' (Tabs).
 
@@ -88,7 +88,7 @@ class WorkspaceView(QFrame):
             self.heatmap_view.update_data(attention_tensor)
         
         if self.token_view:
-            self.token_view.update_data(attention_tensor)
+            self.token_view.update_data(attention_tensor,token_list)
 
     def _switch_to_tab_mode(self):
         """
@@ -104,10 +104,6 @@ class WorkspaceView(QFrame):
         
         self.main_layout.setContentsMargins(15, 15, 15, 15)
         self.main_layout.addWidget(self.tabs)
-        
-        # Istanziazione dei componenti grafici reali
-        self.heatmap_view = AttentionHeatmapView()
-        self.token_view = TokenAttentionView()
         
         self.tabs.addTab(self.heatmap_view, "Heatmap")
         self.tabs.addTab(self.token_view, "Tokens Attention")

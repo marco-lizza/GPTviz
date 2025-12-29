@@ -1,6 +1,7 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 from .loader.attention_loader import Attention_loader
 import torch
+import ast
 
 from src.config import settings
 
@@ -24,7 +25,7 @@ class AppModel(QObject):
     erase_console = pyqtSignal()
     attentions_loaded = pyqtSignal(dict) 
     open_options = pyqtSignal() 
-    head_matrix_loaded = pyqtSignal(torch.Tensor)
+    head_matrix_loaded = pyqtSignal(torch.Tensor,list)
     clear_workspace = pyqtSignal()
 
     def __init__(self):
@@ -98,10 +99,24 @@ class AppModel(QObject):
             matrix = self.loader.get_reconstructed_matrix(
                 self.actual_file, iter_idx, lev_idx, head_idx
             )
-            self.head_matrix_loaded.emit(matrix)
+
+            raw_action_list=self.actual_attentions_metadata["action_list"]
+
+            if isinstance(raw_action_list, str):
+                action_list = ast.literal_eval(raw_action_list)
+            else:
+                action_list = raw_action_list
+            token_list=[]
+
+            for action in action_list:
+                for section in action.split("_"):
+                    token_list.append(section)
+                    
+            self.log_message.emit(f"<info>Iteration: {iter_idx} - Level: {lev_idx} - Head: {head_idx} selected</info>")
+            self.head_matrix_loaded.emit(matrix,token_list)
         except IndexError as e:
             self.log_message.emit(f"<erro>{e}</erro>")
-        
+
     def open_option(self):
         """Emette il segnale per aprire la finestra delle opzioni globali."""
         self.open_options.emit()

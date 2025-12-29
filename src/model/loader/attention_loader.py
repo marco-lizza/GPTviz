@@ -121,42 +121,31 @@ class Attention_loader:
             IndexError: Se `target_iter` supera il numero di righe disponibili nel file.
         """
         self._ensure_file_open(filename)
-        
-        # Controllo limiti usando l'accessor
+
         if target_iter >= self._accessor.num_rows:
             raise IndexError(f"Iterazione {target_iter} fuori range (Max: {self._accessor.num_rows - 1}).")
 
-        # Recupero Prompt (Iter 0) - La base su cui costruire
         base_tensor = self._accessor.get_tensor(0, level_idx, head_idx)
-        
-        # Se è richiesto solo il prompt, ritorna subito
-        if target_iter == 0:
-            return base_tensor
 
-        # Setup Canvas (Matrice vuota)
         prompt_len = base_tensor.shape[0]
-        final_len = prompt_len + target_iter
+        
+        num_generated_tokens = target_iter 
+        final_len = prompt_len + num_generated_tokens
         
         full_matrix = torch.zeros((final_len, final_len), dtype=torch.float32)
-        
-        # Inserisce il prompt nell'angolo in alto a sinistra
         full_matrix[:prompt_len, :prompt_len] = base_tensor
         
-        # Ciclo di riempimento (Stitching)
-        for i in range(1, target_iter + 1):
-            # Recupera il vettore riga per il token generato all'iterazione 'i'
+        
+        for i in range(1, num_generated_tokens + 1):
             row_tensor = self._accessor.get_tensor(i, level_idx, head_idx)
         
             if row_tensor.dim() == 2:
                 row_tensor = row_tensor.squeeze(0)
             
-            # Posizionamento nella matrice globale
             current_len = row_tensor.shape[0]
             row_pos = prompt_len + i - 1
             
-            # Safe slice: assicura di non sbordare se il tensore è più lungo della matrice allocata
             safe_len = min(current_len, final_len)
-            
             full_matrix[row_pos, :safe_len] = row_tensor[:safe_len]
 
         return full_matrix
