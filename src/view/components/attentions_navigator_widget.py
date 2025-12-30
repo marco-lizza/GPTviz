@@ -6,23 +6,19 @@ from src.config import settings
 
 class Attention_navigator_widget(QTreeWidget):
     """
-    Widget di navigazione gerarchica per selezionare specifiche 'Attention Heads'.
+    Widget di navigazione gerarchica per selezionare specifici 'Attention Levels'.
 
-    Visualizza una struttura ad albero a tre livelli che riflette l'architettura
+    Visualizza una struttura ad albero a due livelli che riflette l'architettura
     interna del modello Transformer:
     1. **Iterazioni** (Token generati nel tempo).
     2. **Livelli** (Layers del modello).
-    3. **Teste** (Attention Heads specifiche).
-
-    Ogni nodo foglia (Head) contiene metadati nascosti che permettono di identificare
-    univocamente la matrice di attenzione da caricare.
 
     Signals:
-        head_clicked (int, int, int): Emesso quando l'utente clicca su una testa finale.
-            Payload: `(iter_idx, lev_idx, head_idx)`.
+        level_clicked (int, int): Emesso quando l'utente clicca su un livello finale.
+            Payload: `(iter_idx, lev_idx)`.
     """
 
-    head_clicked = pyqtSignal(int, int, int)
+    level_clicked = pyqtSignal(int, int)
 
     def __init__(self):
         """
@@ -50,15 +46,14 @@ class Attention_navigator_widget(QTreeWidget):
         """
         Gestisce l'evento di click su un nodo dell'albero.
 
-        Verifica se il nodo cliccato è una 'head' (foglia). In tal caso, estrae
+        Verifica se il nodo cliccato è una 'level' (livello). In tal caso, estrae
         gli indici salvati nei ruoli dati custom (`UserRole`) ed emette il segnale
         per aggiornare il Workspace.
 
         Data Mapping (UserRole):
-            * UserRole + 0: Tipo di item ("head", "level", "iteration").
+            * UserRole + 0: Tipo di item ("level", "iteration").
             * UserRole + 1: Indice Iterazione.
             * UserRole + 2: Indice Livello.
-            * UserRole + 3: Indice Testa.
 
         Args:
             item (QTreeWidgetItem): L'elemento cliccato.
@@ -66,14 +61,13 @@ class Attention_navigator_widget(QTreeWidget):
         """
         item_type = item.data(0, Qt.ItemDataRole.UserRole)
         
-        if item_type == "head":
+        if item_type == "level":
             # Estrazione dei metadati nascosti
             iter_idx = item.data(0, Qt.ItemDataRole.UserRole + 1)
             lev_idx  = item.data(0, Qt.ItemDataRole.UserRole + 2)
-            head_idx = item.data(0, Qt.ItemDataRole.UserRole + 3)
             
             # Notifica al controller
-            self.head_clicked.emit(iter_idx, lev_idx, head_idx)
+            self.level_clicked.emit(iter_idx, lev_idx)
 
     def mouseMoveEvent(self, event):
         """
@@ -89,23 +83,20 @@ class Attention_navigator_widget(QTreeWidget):
 
         super().mouseMoveEvent(event)
 
-    def update_sidebar(self, num_iterations: int, num_levels: int, num_heads: int):
+    def update_sidebar(self, num_iterations: int, num_levels: int):
         """
         Rigenera l'intera struttura dell'albero in base alle dimensioni del modello.
 
-        Esegue tre cicli annidati per costruire la gerarchia completa e popolare
+        Esegue due cicli annidati per costruire la gerarchia  e popolare
         ogni nodo foglia con i metadati necessari per il recupero dei dati.
 
         Struttura generata:
         Iterazione 0
-            └── Livello 0
-                ├── Head 0  <-- Contiene (0, 0, 0)
-                └── Head 1  <-- Contiene (0, 0, 1)
+            └── Livello 0 Contiene (0, 0)
         
         Args:
             num_iterations (int): Numero totale di token/passi temporali.
             num_levels (int): Numero di layer del Transformer.
-            num_heads (int): Numero di teste per layer.
         """
         self.clear()
 
@@ -123,15 +114,5 @@ class Attention_navigator_widget(QTreeWidget):
                 level_item.setData(0, Qt.ItemDataRole.UserRole, "level")
                 level_item.setIcon(0, QIcon("assets/attention_navigator/item_icons/level.svg"))
                 
-                # --- Livello 3: Heads ---
-                for h in range(num_heads):
-                    head_item = QTreeWidgetItem(level_item)
-                    head_item.setText(0, f"Head {h}")
-                    
-                    # Salviamo i metadati importanti in questo item (Leaf Node)
-                    head_item.setData(0, Qt.ItemDataRole.UserRole, "head")      # Tipo
-                    head_item.setData(0, Qt.ItemDataRole.UserRole + 1, i)       # Iterazione
-                    head_item.setData(0, Qt.ItemDataRole.UserRole + 2, l)       # Livello
-                    head_item.setData(0, Qt.ItemDataRole.UserRole + 3, h)       # Testa
-                    
-                    head_item.setIcon(0, QIcon("assets/attention_navigator/item_icons/head.svg"))
+                level_item.setData(0, Qt.ItemDataRole.UserRole + 1, i)       # Iterazione
+                level_item.setData(0, Qt.ItemDataRole.UserRole + 2, l)       # Livello

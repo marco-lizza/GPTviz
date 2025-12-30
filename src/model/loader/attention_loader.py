@@ -150,6 +150,41 @@ class Attention_loader:
 
         return full_matrix
 
+
+    def get_level_matrices(self, filename: str, target_iter: int, level_idx: int) -> list[torch.Tensor]:
+        """
+        Recupera le matrici di attenzione ricostruite per tutte le teste (Heads) 
+        di uno specifico livello (Layer).
+
+        Il metodo consulta prima i metadati per determinare il numero di teste, 
+        quindi itera invocando la ricostruzione per ciascuna di esse.
+
+        Args:
+            filename (str): Il file dati da interrogare.
+            target_iter (int): L'iterazione di generazione target.
+            level_idx (int): L'indice del layer desiderato.
+
+        Returns:
+            list[torch.Tensor]: Lista di matrici (una per ogni testa) di dimensione (NxN).
+        """
+
+        meta = self.get_metadata_only(filename)
+        num_heads = meta.get('num_heads') 
+        
+        if num_heads is None:
+            # Fallback o errore se il metadato non è presente
+            raise ValueError(f"Chiave 'n_heads' non trovata nei metadati del file {filename}")
+
+        heads_list = []
+
+        for head_idx in range(num_heads):
+            # e _ensure_file_open controlla se il file è già aperto, 
+            # questo loop è efficiente e non ricarica il file su disco ad ogni giro.
+            matrix = self.get_reconstructed_matrix(filename, target_iter, level_idx, head_idx)
+            heads_list.append(matrix)
+
+        return heads_list
+
     def close(self):
         """
         Chiude il file memory-mapped e rilascia le risorse.  

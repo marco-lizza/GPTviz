@@ -35,13 +35,13 @@ class Workspace_controller:
         Configura le connessioni dirette (Model -> View) per la visualizzazione.
 
         Connections:
-            1. `model.head_matrix_loaded` -> `view.visualize_attentions_matrix`:
-               Quando il modello ha pronto un tensore/matrice, la vista lo riceve
+            1. `model.level_matrices_loaded` -> `view.visualize_attentions`:
+               Quando il modello ha pronta una lista di tensori/matrici, la vista la riceve
                immediatamente per il rendering grafico.
             
             2. `model.clear_workspace` -> `view.reset_view`:
                Quando il modello richiede pulizia (es. cambio file), la vista
                rimuove tutti i grafici correnti.
         """
-        self.model.head_matrix_loaded.connect(self.workspace_view.visualize_attentions_matrix)
+        self.model.level_matrices_loaded.connect(self.workspace_view.visualize_attentions)
         self.model.clear_workspace.connect(self.workspace_view.reset_view)

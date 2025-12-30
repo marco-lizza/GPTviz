@@ -26,6 +26,7 @@ class AppModel(QObject):
     attentions_loaded = pyqtSignal(dict) 
     open_options = pyqtSignal() 
     head_matrix_loaded = pyqtSignal(torch.Tensor,list)
+    level_matrices_loaded = pyqtSignal(list, list)
     clear_workspace = pyqtSignal()
 
     def __init__(self):
@@ -115,6 +116,44 @@ class AppModel(QObject):
             self.log_message.emit(f"<info>Iteration: {iter_idx} - Level: {lev_idx} - Head: {head_idx} selected</info>")
             self.head_matrix_loaded.emit(matrix,token_list)
         except IndexError as e:
+            self.log_message.emit(f"<erro>{e}</erro>")
+
+    def get_level(self, iter_idx: int, lev_idx: int):
+        """
+        Richiede la ricostruzione e l'invio di TUTTE le matrici di attenzione
+        per un determinato livello (Layer).
+
+        Recupera la lista delle matrici (una per ogni testa) tramite il loader
+        e prepara la lista dei token corrispondenti.
+        Il risultato viene emesso tramite il segnale `level_matrices_loaded`.
+
+        Args:
+            iter_idx (int): Indice dell'iterazione temporale.
+            lev_idx (int): Indice del layer del modello.
+        """
+        try:
+            matrices_list = self.loader.get_level_matrices(
+                self.actual_file, iter_idx, lev_idx
+            )
+
+            raw_action_list = self.actual_attentions_metadata["action_list"]
+
+            if isinstance(raw_action_list, str):
+                action_list = ast.literal_eval(raw_action_list)
+            else:
+                action_list = raw_action_list
+            
+            token_list = []
+            for action in action_list:
+                for section in action.split("_"):
+                    token_list.append(section)
+
+            self.log_message.emit(f"<info>Iteration: {iter_idx} - Level: {lev_idx} (All Heads) selected</info>")
+            
+            # Emette la lista di matrici e la lista di token.
+            self.level_matrices_loaded.emit(matrices_list, token_list)
+
+        except (IndexError, ValueError) as e:
             self.log_message.emit(f"<erro>{e}</erro>")
 
     def open_option(self):

@@ -69,14 +69,15 @@ class WorkspaceView(QFrame):
         self.token_view = TokenAttentionView()
         self.tabs = None
 
-    def visualize_attentions_matrix(self, attention_tensor,token_list):
+    def visualize_attentions(self, heads_attention_level,token_list):
         """
         Riceve i dati e passa allo stato 'Visualization' (Tabs).
 
         Args:
-            attention_tensor (torch.Tensor): La matrice di attenzione da visualizzare.
+            heads_attention_level (list[torch.Tensor]): Le matrici di attenzione del livello da visualizzare.
+            token_list (list[str]): I tokens del problema attualmente visualizzato
         """
-        if attention_tensor is None:
+        if heads_attention_level is None:
             return
 
         # Lazy Initialization: Crea i tab solo se non esistono già
@@ -85,10 +86,10 @@ class WorkspaceView(QFrame):
 
         # Propaga i dati alle viste specifiche
         if self.heatmap_view:
-            self.heatmap_view.update_data(attention_tensor)
+            self.heatmap_view.update_data(heads_attention_level[1])
         
         if self.token_view:
-            self.token_view.update_data(attention_tensor,token_list)
+            self.token_view.update_data(heads_attention_level[1],token_list)
 
     def _switch_to_tab_mode(self):
         """
