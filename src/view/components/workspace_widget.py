@@ -86,7 +86,7 @@ class WorkspaceView(QFrame):
 
         # Propaga i dati alle viste specifiche
         if self.heatmap_view:
-            self.heatmap_view.update_data(heads_attention_level[1])
+            self.heatmap_view.update_data(heads_attention_level,token_list)
         
         if self.token_view:
             self.token_view.update_data(heads_attention_level[1],token_list)
@@ -103,7 +103,6 @@ class WorkspaceView(QFrame):
         self.tabs = QTabWidget()
         self.tabs.setDocumentMode(True) 
         
-        self.main_layout.setContentsMargins(15, 15, 15, 15)
         self.main_layout.addWidget(self.tabs)
         
         self.tabs.addTab(self.heatmap_view, "Heatmap")
