@@ -1,0 +1,12 @@
+QPushButton {{
+    background-color: {secondary_color}; 
+    border: 1px solid {border_console};
+    border-radius: 4px;
+    padding: 4px; 
+}}
+
+/* STATO: HOVER (Mouse sopra) */
+QPushButton:hover {{
+    background-color: {terziary_color};
+    color: #ffffff;
+}}

@@ -3,6 +3,7 @@ from PyQt6.QtCore import Qt
 
 from .attention_heatmap_tab import AttentionHeatmapView
 from .tokens_attention_tab import TokenAttentionView
+from .attentions_level_tab import MultiHeadAttentionView
 
 from src.config import settings
 
@@ -20,6 +21,7 @@ class WorkspaceView(QFrame):
            con un `QTabWidget` contenente le viste specializzate (Heatmap, Tokens).
 
     Attributes:
+        grid_view (MultiHeadAttentionView): Tab per l'analisi del livello intero.
         heatmap_view (AttentionHeatmapView): Tab per la matrice di calore.
         token_view (TokenAttentionView): Tab per l'analisi dei token.
         tabs (QTabWidget): Il widget contenitore delle schede (esiste solo nello stato Active).
@@ -34,6 +36,7 @@ class WorkspaceView(QFrame):
         self.setLayout(self.main_layout)
         
         # Vengono tenuti in memoria per poterli aggiornare senza ricrearli ogni volta.
+        self.grid_view = None
         self.heatmap_view = None
         self.token_view = None
         self.tabs = None
@@ -53,7 +56,7 @@ class WorkspaceView(QFrame):
         self._clear_main_layout()
         
         # Crea l'etichetta di placeholder
-        label = QLabel("Nessuna head selezionata")
+        label = QLabel("No level selected")
         
         stylesheet = settings.get_stylesheets("QLabel_style.qss")
         self.setStyleSheet(stylesheet)
@@ -62,6 +65,7 @@ class WorkspaceView(QFrame):
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.main_layout.addWidget(label)
         
+        self.grid_view = MultiHeadAttentionView()
         self.heatmap_view = AttentionHeatmapView()
         self.token_view = TokenAttentionView()
         self.tabs = None
@@ -82,12 +86,16 @@ class WorkspaceView(QFrame):
         if self.tabs is None:
             self._switch_to_tab_mode()
 
+        if self.grid_view:
+            self.grid_view.update_data(heads_attention_level)
+
         if self.heatmap_view:
             self.heatmap_view.update_data(heads_attention_level, token_list)
         
         # DA DEFINIRE
         if self.token_view:
             self.token_view.update_data(heads_attention_level[1], token_list)
+        
 
     def _switch_to_tab_mode(self):
         """
@@ -109,6 +117,7 @@ class WorkspaceView(QFrame):
         
         self.main_layout.addWidget(self.tabs)
         
+        self.tabs.addTab(self.grid_view, "Level view")
         self.tabs.addTab(self.heatmap_view, "Heatmap")
         self.tabs.addTab(self.token_view, "Tokens Attention")
 
