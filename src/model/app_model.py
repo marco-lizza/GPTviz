@@ -148,7 +148,7 @@ class AppModel(QObject):
                 for section in action.split("_"):
                     token_list.append(section)
 
-            self.log_message.emit(f"<info>Iteration: {iter_idx} - Level: {lev_idx} (All Heads) selected</info>")
+            self.log_message.emit(f"<info>Iteration: {iter_idx} - Level: {lev_idx} selected</info>")
             
             # Emette la lista di matrici e la lista di token.
             self.level_matrices_loaded.emit(matrices_list, token_list)

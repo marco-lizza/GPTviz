@@ -29,23 +29,16 @@ class WorkspaceView(QFrame):
         """Inizializza il frame e imposta lo stato iniziale (Idle)."""
         super().__init__()
 
-        """
-        DA DEFINIRE
-        stylesheet = settings.get_stylesheet("workspace_style.qss")
-        self.setStyleSheet(stylesheet)
-        """
-        
+        # Creazione del layout verticale principale che conterrà o la Label o i Tab
         self.main_layout = QVBoxLayout()
-        # Rimuove i margini per permettere ai widget di occupare tutto lo spazio
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.main_layout)
         
-        # Riferimenti ai widget figli (inizializzati a None)
+        # Vengono tenuti in memoria per poterli aggiornare senza ricrearli ogni volta.
         self.heatmap_view = None
         self.token_view = None
         self.tabs = None
         
-        # Imposta lo stato iniziale
+        # Imposta lo stato iniziale (mostra il messaggio "Nessuna head selezionata")
         self.reset_view()
 
     def reset_view(self):
@@ -56,20 +49,24 @@ class WorkspaceView(QFrame):
         e inserisce una singola etichetta di testo centrata.
         Utile quando si cambia file o si vuole pulire la schermata.
         """
+        # Rimuove tutti i widget attuali dal layout
         self._clear_main_layout()
         
+        # Crea l'etichetta di placeholder
         label = QLabel("Nessuna head selezionata")
+        
+        stylesheet = settings.get_stylesheets("QLabel_style.qss")
+        self.setStyleSheet(stylesheet)
+        
+        # Centra il testo
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        # Stile inline per il placeholder (può essere spostato nel QSS)
-        label.setStyleSheet("color: #666; font-size: 24px; font-weight: bold; border: none;")
         self.main_layout.addWidget(label)
         
-        # Resetta i riferimenti per liberare memoria e indicare lo stato inattivo
         self.heatmap_view = AttentionHeatmapView()
         self.token_view = TokenAttentionView()
         self.tabs = None
 
-    def visualize_attentions(self, heads_attention_level,token_list):
+    def visualize_attentions(self, heads_attention_level, token_list):
         """
         Riceve i dati e passa allo stato 'Visualization' (Tabs).
 
@@ -77,19 +74,20 @@ class WorkspaceView(QFrame):
             heads_attention_level (list[torch.Tensor]): Le matrici di attenzione del livello da visualizzare.
             token_list (list[str]): I tokens del problema attualmente visualizzato
         """
+        # Controllo di sicurezza: se non ci sono dati, non fare nulla
         if heads_attention_level is None:
             return
 
-        # Lazy Initialization: Crea i tab solo se non esistono già
+        # Lazy Initialization: Crea la struttura a schede (QTabWidget) solo se non esiste già.
         if self.tabs is None:
             self._switch_to_tab_mode()
 
-        # Propaga i dati alle viste specifiche
         if self.heatmap_view:
-            self.heatmap_view.update_data(heads_attention_level,token_list)
+            self.heatmap_view.update_data(heads_attention_level, token_list)
         
+        # DA DEFINIRE
         if self.token_view:
-            self.token_view.update_data(heads_attention_level[1],token_list)
+            self.token_view.update_data(heads_attention_level[1], token_list)
 
     def _switch_to_tab_mode(self):
         """
@@ -98,9 +96,15 @@ class WorkspaceView(QFrame):
         Questo metodo viene chiamato una sola volta quando si passa dallo stato
         Idle allo stato Visualization.
         """
+        # Pulisce il layout (rimuove la Label "Nessuna head selezionata")
         self._clear_main_layout()
         
+        # Crea il widget delle schede
         self.tabs = QTabWidget()
+        
+        stylesheet = settings.get_stylesheets("QTabWidget_style.qss")
+        self.setStyleSheet(stylesheet)
+        
         self.tabs.setDocumentMode(True) 
         
         self.main_layout.addWidget(self.tabs)

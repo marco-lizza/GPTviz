@@ -5,6 +5,8 @@ QTreeWidget {{
     outline: none;
     font-size: 14px;
     spacing:10px;
+    min-width: 200px; 
+    max-width: 250px;
 }}
 
 /* RAMI */

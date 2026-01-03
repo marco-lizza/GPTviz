@@ -1,0 +1,69 @@
+/* --- IL BOX CHIUSO (Stato Normale) --- */
+QComboBox {{
+    background-color: #2b2b2b; 
+    color: {text_main};
+    
+    border: 1px solid {border_console};
+    border-radius: 6px;
+    
+    padding: 3px 15px;
+
+    font-size: 14px;
+    font-weight: 500; 
+}}
+
+/* Quando passi il mouse sul BOX CHIUSO */
+QComboBox:hover {{
+    border: 1px solid {text_main};
+    background-color: {secondary_color};
+}}
+
+/* Quando il menu è APERTO */
+QComboBox:on {{
+    border: 1px solid {primary_color};
+    background-color: {secondary_color};
+}}
+
+/* --- LA FRECCIA (Drop-down) --- */
+QComboBox::drop-down {{
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 30px;
+
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    
+    border-left: none; 
+}}
+
+/* L'icona della freccia */
+QComboBox::down-arrow {{
+    image: url(assets/attention_navigator/chevron_down.svg);
+    width: 12px;
+    height: 12px;
+}}
+
+/* --- IL MENU A TENDINA (Popup Container) --- */
+QComboBox QAbstractItemView {{
+    background-color: {bg_dark};
+    border: 1px solid {text_main};
+    border-radius: 6px;
+    
+    padding: 5px; 
+    outline: none;
+    
+    selection-background-color: transparent;
+}}
+
+/* --- GLI ELEMENTI (Items) --- */
+QComboBox QAbstractItemView::item {{
+    color: [text_main];
+    min-height: 35px; /* Facile da cliccare */
+    padding: 5px;
+}}
+
+/* --- HOVER (Passaggio Mouse) --- */
+QComboBox QAbstractItemView::item:hover {{
+    background-color: {terziary_color};
+    color: {text_main};
+}}

@@ -1,8 +1,7 @@
-# src/ui/toolbar.py
-from PyQt6.QtWidgets import QToolBar, QToolButton, QLabel
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIcon
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
+
+from src.config import settings
 
 class CustomNavigationToolbar(NavigationToolbar):
     """
@@ -41,39 +40,8 @@ class CustomNavigationToolbar(NavigationToolbar):
                 self.removeAction(action)
 
     def _apply_stylesheet(self):
-        """Stile CSS scuro."""
-        style = """
-            QToolBar {
-                background-color: #2b2b2b;
-                border-top: 1px solid #444;
-                spacing: 5px;
-                padding: 5px;
-            }
-            QToolButton {
-                background-color: #383838;
-                border: 1px solid #555;
-                border-radius: 4px;
-                color: white;
-                padding: 4px;
-                width: 24px; 
-                height: 24px;
-            }
-            QToolButton:hover {
-                background-color: #505050;
-                border: 1px solid #777;
-            }
-            QToolButton:checked {
-                background-color: #4a90e2;
-                border: 1px solid #4a90e2;
-            }
-            QLabel {
-                color: #aaaaaa;
-                font-size: 11px;
-                font-family: monospace;
-                margin-left: 10px;
-            }
-        """
-        self.setStyleSheet(style)
+        stylesheet = settings.get_stylesheet("NavigationToolbar_widget.qss")
+        self.setStyleSheet(stylesheet)
 
     def zoom(self, *args):
         """
