@@ -1,6 +1,7 @@
 import os
 import pyarrow as pa
 import torch
+import shutil
 
 from .metadata_scanner import MetadataScanner
 from .arrow_tensor_accessor import ArrowTensorAccessor
@@ -43,6 +44,20 @@ class Attention_loader:
             Dict: Un dizionario {Dominio: [lista_file, ...]}.
         """
         return self.scanner.scan_domains()
+    
+    def load_file_in_workspace(self, file_path:str):
+        """
+        Riceve il path sorgente (dalla View) del file e lo copia nel workspace.
+        """
+        filename = os.path.basename(file_path)
+        destination_path = os.path.join(self.base_path, filename)
+        
+        if os.path.exists(destination_path):
+            raise FileExistsError()
+
+        shutil.copy2(file_path, destination_path)
+
+
 
     def _ensure_file_open(self, filename: str):
         """

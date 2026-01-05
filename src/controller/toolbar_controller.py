@@ -32,14 +32,16 @@ class Tooolbar_controller:
         Configura i listener per le azioni del menu (View -> Controller).
 
         Collega i segnali emessi dai pulsanti/voci del menu ai metodi di gestione
-        interni di questo controller.
+        interni di questo controller o a metodi del model.
         
         Mappings:
             * `view.load_file_names` -> `handle_load_file_names()`
             * `view.clear_console` -> `clear_console()`
+            * `view.import_requested` -> `self.model.import_file_requested()`
         """
         self.toolbar_view.load_file_names.connect(self.handle_load_file_names)
         self.toolbar_view.clear_console.connect(self.clear_console)
+        self.toolbar_view.import_requested.connect(self.model.import_file_requested)
 
     def handle_load_file_names(self):
         """

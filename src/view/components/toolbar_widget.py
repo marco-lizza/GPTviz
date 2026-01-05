@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QToolBar,QWidget,QSizePolicy
+from PyQt6.QtWidgets import QToolBar,QWidget,QSizePolicy,QFileDialog
 from PyQt6.QtGui import QAction,QIcon
 from PyQt6.QtCore import pyqtSignal,QSize
 
@@ -16,13 +16,13 @@ class Toolbar(QToolBar):
         action_exit (None): Emesso quando si richiede la chiusura.
         clear_console (None): Emesso quando si clicca su "Clean console".
         load_file_names (None): Emesso per ricaricare la lista file nel workspace.
-        import_requested(None): Emesso quando vogliamo importare un file nel workspace
+        import_requested(str): Emesso quando vogliamo importare un file nel workspace - il parametro passato è il path del file
     """
 
     action_exit = pyqtSignal()
     clear_console = pyqtSignal()
     load_file_names = pyqtSignal()
-    import_requested = pyqtSignal()     
+    import_requested = pyqtSignal(str)     
 
     def __init__(self,parent=None):
         """
@@ -52,7 +52,7 @@ class Toolbar(QToolBar):
         action_import = QAction(icon_import, "Import Data", self)
         action_import.setStatusTip("Import a new file .arrow")
         action_import.setShortcut("Ctrl+I") 
-        action_import.triggered.connect(self.import_requested.emit)
+        action_import.triggered.connect(self.open_import_dialog)
         self.addAction(action_import)
         
         # Azione 2: Reload
@@ -84,3 +84,15 @@ class Toolbar(QToolBar):
         action_exit.setShortcut("Ctrl+E") 
         action_exit.triggered.connect(self.action_exit.emit)
         self.addAction(action_exit)
+
+    def open_import_dialog(self):
+        """Apre il file dialog e, se un file è scelto, emette il path al controller."""
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, 
+            "Select an Arrow file to import", 
+            "", 
+            "Arrow Files (*.arrow)"
+        )
+
+        if file_path:
+            self.import_requested.emit(file_path)

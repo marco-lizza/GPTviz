@@ -2,6 +2,8 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from .loader.attention_loader import Attention_loader
 import torch
 import ast
+import os
+import shutil
 
 from src.config import settings
 
@@ -53,6 +55,43 @@ class AppModel(QObject):
             self.clear_workspace.emit()
         except Exception as e:
             self.log_message.emit(f"<erro>{e}</erro>")
+
+    def import_file_requested(self, file_path: str):
+        """
+        Gestisce la logica di business per la richiesta di importazione di un file.
+        
+        Riceve il percorso del file selezionato dalla View, delega l'operazione di copia
+        al loader, gestisce il logging del risultato (successo o errore) 
+        e richiede l'aggiornamento dell'interfaccia.
+
+        :param file_path: Il percorso assoluto del file sorgente (.arrow) da importare.
+        :type file_path: str
+        """
+        try:
+            self.loader.load_file_in_workspace(file_path)
+            self.log_message.emit(f"<succ>File correctly <i>imported</i></succ>")
+            self.load_file_names()
+
+        except FileExistsError as e:
+            self.log_message.emit(f"<erro>The file already exists in the workspace.</erro>")
+
+        except shutil.SameFileError:
+            self.log_message.emit("<erro>Operation skipped: Source and destination are the same file.</erro>")
+
+        except PermissionError:
+            self.log_message.emit("<erro>Permission denied: Cannot read source or write to destination.</erro>")
+
+        except FileNotFoundError:
+            self.log_message.emit("<erro>File not found: It may have been moved or deleted during selection.</erro>")
+
+        except OSError as e:
+            if e.errno == 28:
+                self.log_message.emit("<erro>Disk full: Insufficient space to copy the file.</erro>")
+            else:
+                self.log_message.emit(f"<erro>System Error: {str(e)}</erro>")
+
+        except Exception as e:
+            self.log_message.emit(f"<erro>Critical Error: {str(e)}</erro>")
 
     def load_metadata_of_file(self, file_name: str):
         """
