@@ -1,12 +1,12 @@
-from PyQt6.QtWidgets import QMainWindow, QSplitter
-from PyQt6.QtCore import Qt, pyqtSignal
-
-from .options_dialog import OptionsDialog
+from PyQt6.QtWidgets import (QMainWindow, QSplitter, QToolBar, QStatusBar, 
+                             QLabel, QWidget, QSizePolicy)
+from PyQt6.QtGui import QAction, QIcon
+from PyQt6.QtCore import Qt, pyqtSignal, QSize
 
 from .components.console_widget import ConsoleView
 from .components.sidebar_widget import SidebarView
 from .components.workspace_widget import WorkspaceView
-from .components.menu_widget import TopMenuBar
+from .components.toolbar_widget import Toolbar
 from .components.attentions_navigator_widget import Attention_navigator_widget
 
 from src.config import settings
@@ -21,22 +21,25 @@ class MainWindow(QMainWindow):
     per permettere al Controller di collegare facilmente la logica di business.
 
     Struttura del Layout:
+    +-----------------------------------------+
+    |                Toolbar                  |
     +---------+-------------------------------+
     |         |  Attention Nav |  Workspace   |
     | Sidebar | (h1_splitter)  |              |
     |         +----------------+--------------+
     |         |            Console            |
     +---------+-------------------------------+
+    |               StatusBar                 |
+    +-----------------------------------------+
 
     Attributes:
         console (ConsoleView): Widget per i log di sistema (in basso).
         sidebar (SidebarView): Widget per la lista dei file (a sinistra).
         attention_navigator (Attention_navigator_widget): Pannello di navigazione teste (centro-sinistra).
         workspace (WorkspaceView): Area principale di visualizzazione grafici (centro-destra).
-        top_menu (TopMenuBar): Barra dei menu superiore.
-    """
-
-    import_requested = pyqtSignal()                
+        toolbar (QToolBar): Barra degli strumenti con azioni rapide.
+        statusbar (QStatusBar): Barra inferiore per messaggi e versione.
+    """           
 
     def __init__(self):
         """
@@ -53,14 +56,31 @@ class MainWindow(QMainWindow):
         self.sidebar = SidebarView()
         self.attention_navigator = Attention_navigator_widget()
         self.workspace = WorkspaceView()
-        self.top_menu = TopMenuBar()
-
-        # Associo il menu alla window
-        self.setMenuBar(self.top_menu)
-
-        # Setup layout della window
-        self._setup_layout()
         
+        self.toolbar = Toolbar(self)
+        self.toolbar.action_exit.connect(self.close)
+
+        # Configurazione Toolbar e Statusbar
+        self.addToolBar(self.toolbar)
+        self._setup_statusbar()
+
+        # Setup layout della window (Central Widget)
+        self._setup_layout()
+
+    def _setup_statusbar(self):
+        """
+        Configura la barra di stato inferiore (StatusBar).
+        Mostra messaggi temporanei a sinistra e info permanenti (Versione) a destra.
+        """
+        self.statusbar = QStatusBar()
+        self.setStatusBar(self.statusbar)
+
+        # Widget permanenti (allineati a destra)
+        # Etichetta Versione
+        self.lbl_version = QLabel("Ver: 0.1.0-alpha")
+        self.lbl_version.setStyleSheet("color: gray;")
+        self.statusbar.addPermanentWidget(self.lbl_version)
+
     def _setup_layout(self):
         """
         Organizza i widget in una griglia ridimensionabile usando QSplitter nidificati.
@@ -118,12 +138,3 @@ class MainWindow(QMainWindow):
         self.h_splitter.setSizes([150, 150]) 
 
         self.setCentralWidget(self.h_splitter)
-
-    def open_options_dialog(self):
-        """
-        Apre la finestra di dialogo modale delle opzioni.
-        
-        Blocca l'interazione con la finestra principale finché il dialog non viene chiuso (`exec`).
-        """
-        dialog = OptionsDialog(self)
-        dialog.exec()

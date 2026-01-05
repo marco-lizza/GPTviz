@@ -23,8 +23,7 @@ class AppModel(QObject):
     file_name_loaded = pyqtSignal(dict)   
     log_message = pyqtSignal(str) 
     erase_console = pyqtSignal()
-    attentions_loaded = pyqtSignal(dict) 
-    open_options = pyqtSignal() 
+    attentions_loaded = pyqtSignal(dict)
     head_matrix_loaded = pyqtSignal(torch.Tensor,list)
     level_matrices_loaded = pyqtSignal(list, list)
     clear_workspace = pyqtSignal()
@@ -155,10 +154,6 @@ class AppModel(QObject):
 
         except (IndexError, ValueError) as e:
             self.log_message.emit(f"<erro>{e}</erro>")
-
-    def open_option(self):
-        """Emette il segnale per aprire la finestra delle opzioni globali."""
-        self.open_options.emit()
 
     def clear_console(self):
         """Emette il segnale per pulire il testo della console di sistema."""

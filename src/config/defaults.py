@@ -2,7 +2,7 @@ DEFAULTS_MAIN_VALUE= {
     "K_VALUE": 5,
     "MIN_K_VALUE": 1,
     "MAX_K_VALUE": 15,
-    "ICON_SIZE": 30,
+    "ICON_SIZE": 20,
     "ZOOM_FACTOR" : 1.05,
     "MIN_ZOOM" : 0.5,
     "MAX_ZOOM" : 1.5,

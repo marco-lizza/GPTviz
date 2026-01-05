@@ -1,4 +1,4 @@
-from .top_menu_controller import Top_menu_controller
+from .toolbar_controller import Tooolbar_controller
 from .sidebar_controller import Sidebar_controller
 from .console_controller import Console_controller
 from .workspace_controller import Workspace_controller
@@ -19,7 +19,7 @@ class AppController:
     Attributes:
         model (AppModel): Riferimento all'istanza del modello dati principale.
         view (MainWindow): Riferimento all'istanza della vista principale.
-        top_menu_ctrl (Top_menu_controller): Gestisce la logica della barra dei menu in alto.
+        toolbar_ctrl (Tooolbar_controller): Gestisce la logica della toolbar in alto.
         sidebar_ctrl (Sidebar_controller): Gestisce la logica della barra laterale.
         console_ctrl (Console_controller): Gestisce la logica della console integrata.
         workspace_ctrl (Workspace_controller): Gestisce l'area di lavoro principale.
@@ -34,7 +34,7 @@ class AppController:
         self.view = view
 
         # Inizializzazione dei sotto-controller
-        self.top_menu_ctrl = Top_menu_controller(model, view.top_menu)
+        self.toolbar_ctrl = Tooolbar_controller(model, view.toolbar)
         self.sidebar_ctrl = Sidebar_controller(model, view.sidebar)
         self.console_ctrl = Console_controller(model, view.console)
         self.workspace_ctrl = Workspace_controller(model, view.workspace)
@@ -49,8 +49,7 @@ class AppController:
         Collega gli eventi specifici del modello (es. richieste di apertura finestre)
         alle funzioni corrispondenti nella vista.
         """
-        # Collega il segnale di apertura opzioni al dialog della vista
-        self.model.open_options.connect(self.view.open_options_dialog)
+        pass
         
     def initialize(self):
         """

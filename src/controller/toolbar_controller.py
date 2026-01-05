@@ -1,9 +1,9 @@
 from src.model.app_model import AppModel
-from src.view.components.menu_widget import TopMenuBar
+from src.view.components.toolbar_widget import Toolbar
 
-class Top_menu_controller:
+class Tooolbar_controller:
     """
-    Gestisce le interazioni dell'utente con la barra dei menu superiore (Top Menu Bar).
+    Gestisce le interazioni dell'utente con la toolbar.
 
     Questo controller funge da ponte tra i comandi impartiti dall'utente tramite i menu
     (es. File ecc..) e la logica di business dell'applicazione.
@@ -11,19 +11,19 @@ class Top_menu_controller:
 
     Attributes:
         model (AppModel): Riferimento al modello dati principale.
-        top_menu_view (TopMenuBar): Riferimento al widget della barra dei menu.
+        toolbar_view (Toolbar): Riferimento al widget della toolbar.
     """
 
-    def __init__(self, model: AppModel, top_menu_view: TopMenuBar):
+    def __init__(self, model: AppModel, toolbar_view: Toolbar):
         """
         Inizializza il controller del menu superiore.
 
         Args:
             model (AppModel): L'istanza del modello dati dell'applicazione.
-            top_menu_view (TopMenuBar): L'istanza della vista della barra dei menu.
+            toolbar_view (Toolbar): L'istanza della vista toolbar.
         """
         self.model = model
-        self.top_menu_view = top_menu_view
+        self.toolbar_view = toolbar_view
 
         self.set_up_binding()
 
@@ -35,13 +35,11 @@ class Top_menu_controller:
         interni di questo controller.
         
         Mappings:
-            * `view.open_options` -> `open_options()`
             * `view.load_file_names` -> `handle_load_file_names()`
             * `view.clear_console` -> `clear_console()`
         """
-        self.top_menu_view.open_options.connect(self.open_options)
-        self.top_menu_view.load_file_names.connect(self.handle_load_file_names)
-        self.top_menu_view.clear_console.connect(self.clear_console)
+        self.toolbar_view.load_file_names.connect(self.handle_load_file_names)
+        self.toolbar_view.clear_console.connect(self.clear_console)
 
     def handle_load_file_names(self):
         """
@@ -51,21 +49,12 @@ class Top_menu_controller:
         la lista dei file disponibili.
         """
         self.model.load_file_names()
-        
-    def open_options(self):
-        """
-        Gestisce la richiesta di apertura del pannello opzioni.
-
-        Invocato dal menu opzioni. Sollecita il modello a innescare il processo
-        di apertura del dialog di configurazione (che verrà poi gestito dal Main Controller).
-        """
-        self.model.open_option()
 
     def clear_console(self):
         """
         Gestisce il comando di pulizia della console.
 
-        Invocato quando l'utente clicca su "Clear Console". Invia il comando al modello,
+        Invocato quando l'utente clicca su "Clean console". Invia il comando al modello,
         che a sua volta emetterà il segnale `erase_console` per notificare tutti 
         i componenti interessati (come il ConsoleController).
         """
