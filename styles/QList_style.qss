@@ -1,0 +1,29 @@
+QListWidget {{
+    background-color: {bg_dark};
+    color: {text_main};
+    outline: none;
+    border: none;
+    font-size: 14px;
+
+    selection-background-color: transparent;
+}}
+
+/* L'ITEM */
+QListWidget::item {{
+    color: {text_main};
+    padding:4px  2px;
+    margin-bottom: 2px;
+}}
+
+/* STATO HOVER (Al passaggio del mouse) */
+QListWidget::item:hover {{
+    background-color: {terziary_color};
+    color: {text_main};
+}}
+
+/* STATO SELECTED (Elemento cliccato) */
+QListWidget::item:selected {{
+    color: #ffffff;
+    font-weight: bold;
+    border : 2px solid {app_color};
+}}

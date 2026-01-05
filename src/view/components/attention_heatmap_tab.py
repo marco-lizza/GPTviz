@@ -1,15 +1,13 @@
 import numpy as np
 import torch
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QComboBox, QDoubleSpinBox, QSizePolicy)
+from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel,QSizePolicy)
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIcon
 
-from .ui.canvas import MplCanvas
-from .ui.heatmap_toolbar import CustomNavigationToolbar
+from .ui.attention_heatmap_canvas import MplCanvas
+from .ui.attention_heatmap_bottom_toolbar import CustomNavigationToolbar
 
 from src.config import settings
-from src.view.components.ui.heatmap_controls_widget import HeatmapControls
+from src.view.components.ui.attention_heatmap_top_toolbar import HeatmapControls
 
 class AttentionHeatmapView(QWidget):
     """

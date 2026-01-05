@@ -1,0 +1,17 @@
+QSplitter::handle:vertical {{
+    background-color: {secondary_color};
+    image: url(assets/utility/grip_horizontal.svg); 
+}}
+
+QSplitter::handle:horizontal {{
+    background-color: {secondary_color};
+    image: url(assets/utility/grip_vertical.svg); 
+}}
+
+QSplitter::handle:hover {{
+    background-color: {terziary_color};
+}}
+
+QSplitter::handle:pressed {{
+    background-color: #5E5E5E;
+}}

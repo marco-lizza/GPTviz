@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import (QWidget, QHBoxLayout, QLabel, QComboBox, 
-                             QDoubleSpinBox, QFrame, QListView)
-from PyQt6.QtCore import pyqtSignal, Qt
+from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QComboBox, 
+                             QDoubleSpinBox, QFrame)
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QIcon
 
 from src.config import settings
@@ -58,7 +58,7 @@ class HeatmapControls(QFrame):
         self.spin_gamma.setSingleStep(0.1)
         self.spin_gamma.setValue(1.0)
         
-        self.spin_gamma.setStyleSheet(settings.get_stylesheet("QDoubleSpinBox_style.qss"))
+        self.spin_gamma.setStyleSheet(settings.get_stylesheet("QSpinBox_style.qss"))
         
         self.spin_gamma.valueChanged.connect(self.gamma_changed.emit)
         layout.addWidget(self.spin_gamma)

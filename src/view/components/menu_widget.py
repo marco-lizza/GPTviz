@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QMenuBar, QFileDialog, QMenu
-from PyQt6.QtGui import QAction, QKeySequence
+from PyQt6.QtWidgets import QMenuBar
+from PyQt6.QtGui import QAction
 from PyQt6.QtCore import pyqtSignal
 
 class TopMenuBar(QMenuBar):

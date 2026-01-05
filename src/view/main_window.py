@@ -9,6 +9,8 @@ from .components.workspace_widget import WorkspaceView
 from .components.menu_widget import TopMenuBar
 from .components.attentions_navigator_widget import Attention_navigator_widget
 
+from src.config import settings
+
 class MainWindow(QMainWindow):
     """
     Finestra principale dell'applicazione (Main View).
@@ -73,6 +75,9 @@ class MainWindow(QMainWindow):
         self.h1_splitter = QSplitter(Qt.Orientation.Horizontal)
         self.h1_splitter.addWidget(self.attention_navigator) 
         self.h1_splitter.addWidget(self.workspace)
+
+        self.h1_splitter.setHandleWidth(5)
+        self.h1_splitter.setStyleSheet(settings.get_stylesheet("QSplitter_style.qss"))
         
         self.h1_splitter.setCollapsible(0, False)
         self.h1_splitter.setCollapsible(1, False)
@@ -85,6 +90,8 @@ class MainWindow(QMainWindow):
 
         # 2. Splitter Verticale (Area Lavoro | Console)
         self.v_splitter = QSplitter(Qt.Orientation.Vertical)
+        self.v_splitter.setHandleWidth(5)
+        self.v_splitter.setStyleSheet(settings.get_stylesheet("QSplitter_style.qss"))
         self.v_splitter.addWidget(self.h1_splitter)
         self.v_splitter.addWidget(self.console)
         
@@ -98,6 +105,8 @@ class MainWindow(QMainWindow):
         # 3. Splitter Principale Root (Sidebar | Area Destra)
         self.h_splitter = QSplitter(Qt.Orientation.Horizontal)
         self.h_splitter.addWidget(self.sidebar)
+        self.h_splitter.setHandleWidth(5)
+        self.h_splitter.setStyleSheet(settings.get_stylesheet("QSplitter_style.qss"))
         self.h_splitter.addWidget(self.v_splitter)
 
         self.h_splitter.setCollapsible(0, False)

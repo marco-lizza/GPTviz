@@ -27,9 +27,13 @@ class SettingsManager:
         I valori iniziali vengono letti dal file `defaults.py` (DEFAULTS_MAIN_VALUE)
         """
         self.K_VALUE = DEFAULTS_MAIN_VALUE["K_VALUE"]
+        self.MIN_K_VALUE = DEFAULTS_MAIN_VALUE["MIN_K_VALUE"]
+        self.MAX_K_VALUE = DEFAULTS_MAIN_VALUE["MAX_K_VALUE"]
         self.WORKSPACE_DIRECTORY = DEFAULTS_MAIN_VALUE["WORKSPACE_DIRECTORY"]
         self.ICON_SIZE = DEFAULTS_MAIN_VALUE["ICON_SIZE"]
         self.ZOOM_FACTOR = DEFAULTS_MAIN_VALUE["ZOOM_FACTOR"]
+        self.MIN_ZOOM = DEFAULTS_MAIN_VALUE["MIN_ZOOM"]
+        self.MAX_ZOOM = DEFAULTS_MAIN_VALUE["MAX_ZOOM"]
         self.THEME_MODE = DEFAULTS_MAIN_VALUE["THEME_MODE"]
         self.CONSOLE_PALETTE = DEFAULT_CONSOLE_PALETTE.copy()
 
@@ -51,9 +55,9 @@ class SettingsManager:
         """
         # Recupera la palette giusta in base allo stato attuale
         if self.THEME_MODE == "light":
-            palette = LIGHT_PALETTE
+            self.PALETTE = LIGHT_PALETTE
         else:
-            palette = DARK_PALETTE
+            self.PALETTE = DARK_PALETTE
 
         # Logica di lettura file .qss
         base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # Sale di un livello
@@ -62,16 +66,15 @@ class SettingsManager:
         try:
             with open(style_path, "r") as f:
                 return f.read().format(
-                    primary_color=palette["primary"],
-                    secondary_color=palette["secondary"],
-                    terziary_color=palette["terziary"],
-                    text_main=palette["text_main"],
-                    text_dim=palette["text_dim"],
-                    border=palette["border"],
-                    bg_console=palette["bg_console"],
-                    console_text=palette["console_text"],
-                    border_console=palette["border_console"],
-                    bg_dark=palette["bg_main"] 
+                    primary_color=self.PALETTE["primary"],
+                    secondary_color=self.PALETTE["secondary"],
+                    terziary_color=self.PALETTE["terziary"],
+                    app_color=self.PALETTE["app_color"],
+                    text_main=self.PALETTE["text_main"],
+                    border=self.PALETTE["border"],
+                    bg_console=self.PALETTE["bg_console"],
+                    border_console=self.PALETTE["border_console"],
+                    bg_dark=self.PALETTE["bg_main"] 
                 )
         except Exception as e:
             print(f"Errore style: {e}")

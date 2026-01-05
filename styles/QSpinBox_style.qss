@@ -11,7 +11,7 @@ QDoubleSpinBox, QSpinBox {{
     font-size: 14px;
     font-weight: 500;
     
-    selection-background-color: #6834b2;
+    selection-background-color: {app_color};
     selection-color: #ffffff;
 }}
 

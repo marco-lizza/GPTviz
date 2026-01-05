@@ -92,9 +92,8 @@ class WorkspaceView(QFrame):
         if self.heatmap_view:
             self.heatmap_view.update_data(heads_attention_level, token_list)
         
-        # DA DEFINIRE
         if self.token_view:
-            self.token_view.update_data(heads_attention_level[1], token_list)
+            self.token_view.update_data(heads_attention_level, token_list)
         
 
     def _switch_to_tab_mode(self):

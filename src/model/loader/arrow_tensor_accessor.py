@@ -1,6 +1,5 @@
 import pyarrow as pa
 import torch
-import numpy as np
 
 class ArrowTensorAccessor:
     """

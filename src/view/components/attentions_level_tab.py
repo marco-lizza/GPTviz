@@ -9,7 +9,7 @@ from PyQt6.QtGui import QIcon
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 
-from .ui.canvas import MplCanvas
+from .ui.attention_heatmap_canvas import MplCanvas
 from src.config import settings
 
 class MultiHeadAttentionView(QWidget):
@@ -60,7 +60,7 @@ class MultiHeadAttentionView(QWidget):
         self.spin_gamma.setRange(0.1, 5.0)
         self.spin_gamma.setSingleStep(0.1)
         self.spin_gamma.setValue(1.0)
-        self.spin_gamma.setStyleSheet(settings.get_stylesheet("QDoubleSpinBox_style.qss"))
+        self.spin_gamma.setStyleSheet(settings.get_stylesheet("QSpinBox_style.qss"))
         self.spin_gamma.valueChanged.connect(self._refresh_pixel_data)
         tb_layout.addWidget(self.spin_gamma)
         
