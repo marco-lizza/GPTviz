@@ -81,7 +81,7 @@ class Attention_loader:
 
         full_path = self.scanner._resolve_path(filename)
         if not os.path.exists(full_path):
-            raise FileNotFoundError(f"File non trovato: {full_path}")
+            raise FileNotFoundError(f"File not found: {full_path}")
 
         # Apertura e creazione dell'Accessor
         # Memory Map permette di caricare file più grandi della RAM disponibile
@@ -138,7 +138,7 @@ class Attention_loader:
         self._ensure_file_open(filename)
 
         if target_iter >= self._accessor.num_rows:
-            raise IndexError(f"Iterazione {target_iter} fuori range (Max: {self._accessor.num_rows - 1}).")
+            raise IndexError(f"Iteration {target_iter} out of range (Max: {self._accessor.num_rows - 1}).")
 
         base_tensor = self._accessor.get_tensor(0, level_idx, head_idx)
 
@@ -188,7 +188,7 @@ class Attention_loader:
         
         if num_heads is None:
             # Fallback o errore se il metadato non è presente
-            raise ValueError(f"Chiave 'n_heads' non trovata nei metadati del file {filename}")
+            raise ValueError(f"Key 'n_heads' not found in metadata of file {filename}")
 
         heads_list = []
 

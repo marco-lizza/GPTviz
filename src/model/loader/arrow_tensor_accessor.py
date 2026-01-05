@@ -92,6 +92,6 @@ class ArrowTensorAccessor:
             
         except IndexError:
             # Rilancia l'errore con contesto aggiuntivo per il debugging
-            raise IndexError(f"Indici non validi: Iter={iter_idx}, Lev={level_idx}, Head={head_idx}")
+            raise IndexError(f"Indices not valid: Iter={iter_idx}, Lev={level_idx}, Head={head_idx}")
         except Exception as e:
-            raise RuntimeError(f"Errore accesso Arrow: {e}")
+            raise RuntimeError(f"Arrow access error: {e}")

@@ -73,7 +73,7 @@ class MetadataScanner:
         full_path = self._resolve_path(filename)
         
         if not os.path.exists(full_path):
-            raise FileNotFoundError(f"File non trovato: {full_path}")
+            raise FileNotFoundError(f"File not found: {full_path}")
 
         try:
             with pa.OSFile(full_path, 'rb') as source:
@@ -81,7 +81,7 @@ class MetadataScanner:
                 reader = pa.ipc.open_file(source)
                 return self._decode_dict(reader.schema.metadata)
         except Exception as e:
-            print(f"Errore lettura metadati per {filename}: {e}")
+            print(f"Error during the reading of metadata of {filename}: {e}")
             return {}
 
     def scan_domains(self) -> dict:

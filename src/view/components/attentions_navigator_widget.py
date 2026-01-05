@@ -101,7 +101,7 @@ class Attention_navigator_widget(QTreeWidget):
         self.clear()
 
         # --- Livello 1: Iterazioni ---
-        for i in range(num_iterations):
+        for i in range(num_iterations-1,-1,-1):
             iter_item = QTreeWidgetItem(self)
             iter_item.setText(0, f"Iterazione {i}")
             iter_item.setData(0, Qt.ItemDataRole.UserRole, "iteration")
