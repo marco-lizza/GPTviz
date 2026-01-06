@@ -44,6 +44,9 @@ class Attention_navigator_controller:
         # Quando l'utente clicca sulla vista, notifica il controller di procedere con il reperimento delle informazioni
         self.attention_navigator_view.level_clicked.connect(self.level_clicked)
 
+        # Resetta la vista del navigator quando viene aggiornato il workspace o viene fatto un import
+        self.model.clear_navigator.connect(self.attention_navigator_view.reset_view)
+
     def update_attention_navigator(self, attention_metadata: dict):
         """
         Aggiorna la struttura visuale del navigatore in base ai metadati ricevuti.

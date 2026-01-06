@@ -29,6 +29,7 @@ class AppModel(QObject):
     head_matrix_loaded = pyqtSignal(torch.Tensor,list)
     level_matrices_loaded = pyqtSignal(list, list)
     clear_workspace = pyqtSignal()
+    clear_navigator= pyqtSignal()
 
     def __init__(self):
         """Inizializza il modello e il loader interno."""
@@ -53,6 +54,7 @@ class AppModel(QObject):
             self.log_message.emit(f"<succ>.arrow file into <i>workspace</i> directory <b>loaded<b></succ>")
             self.file_name_loaded.emit(files)
             self.clear_workspace.emit()
+            self.clear_navigator.emit()
         except Exception as e:
             self.log_message.emit(f"<erro>{e}</erro>")
 

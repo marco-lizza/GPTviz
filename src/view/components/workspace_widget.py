@@ -41,7 +41,7 @@ class WorkspaceView(QFrame):
         self.token_view = None
         self.tabs = None
         
-        # Imposta lo stato iniziale (mostra il messaggio "Nessuna head selezionata")
+        # Imposta lo stato iniziale (mostra il messaggio "No level selected")
         self.reset_view()
 
     def reset_view(self):
