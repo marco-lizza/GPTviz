@@ -53,6 +53,8 @@ class Attention_navigator_widget(QWidget):
         Crea le due viste principali (etichetta informativa e albero) e imposta lo stato iniziale.
         """
         super().__init__()
+
+        self.setStyleSheet("Attention_navigator_widget { min-width: 200px; max-width: 250px; }")
         
         # --- Layout Principale (Stack) ---
         # QStackedLayout permette di sovrapporre widget e mostrarne solo uno alla volta
