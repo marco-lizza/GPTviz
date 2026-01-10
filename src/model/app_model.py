@@ -27,7 +27,7 @@ class AppModel(QObject):
     erase_console = pyqtSignal()
     attentions_loaded = pyqtSignal(dict)
     head_matrix_loaded = pyqtSignal(torch.Tensor,list)
-    level_matrices_loaded = pyqtSignal(list, list)
+    level_matrices_loaded = pyqtSignal(list, list,list)
     clear_workspace = pyqtSignal()
     clear_navigator= pyqtSignal()
 
@@ -191,7 +191,7 @@ class AppModel(QObject):
             self.log_message.emit(f"<info>Iteration: {iter_idx} - Level: {lev_idx} selected</info>")
             
             # Emette la lista di matrici e la lista di token.
-            self.level_matrices_loaded.emit(matrices_list, token_list)
+            self.level_matrices_loaded.emit(matrices_list, token_list,action_list)
 
         except (IndexError, ValueError) as e:
             self.log_message.emit(f"<erro>{e}</erro>")

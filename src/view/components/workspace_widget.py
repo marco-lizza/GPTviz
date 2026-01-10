@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel, QTabWidget
 from PyQt6.QtCore import Qt
 
 from .attention_heatmap_tab import AttentionHeatmapView
-from .tokens_attention_tab import TokenAttentionView
+from .tokens_actions_attention_tab import TokenActionsAttentionView
 from .attentions_level_tab import MultiHeadAttentionView
 
 from src.config import settings
@@ -23,7 +23,7 @@ class WorkspaceView(QFrame):
     Attributes:
         grid_view (MultiHeadAttentionView): Tab per l'analisi del livello intero.
         heatmap_view (AttentionHeatmapView): Tab per la matrice di calore.
-        token_view (TokenAttentionView): Tab per l'analisi dei token.
+        token_action_view (TokenActionsAttentionView): Tab per l'analisi dei token e delle azioni.
         tabs (QTabWidget): Il widget contenitore delle schede (esiste solo nello stato Active).
     """
 
@@ -67,16 +67,17 @@ class WorkspaceView(QFrame):
         
         self.grid_view = MultiHeadAttentionView()
         self.heatmap_view = AttentionHeatmapView()
-        self.token_view = TokenAttentionView()
+        self.token_action_view = TokenActionsAttentionView()
         self.tabs = None
 
-    def visualize_attentions(self, heads_attention_level, token_list):
+    def visualize_attentions(self, heads_attention_level, token_list,action_list):
         """
         Riceve i dati e passa allo stato 'Visualization' (Tabs).
 
         Args:
             heads_attention_level (list[torch.Tensor]): Le matrici di attenzione del livello da visualizzare.
             token_list (list[str]): I tokens del problema attualmente visualizzato
+            action_list (list[str]): Le actions del problema attualmente visualizzato
         """
         # Controllo di sicurezza: se non ci sono dati, non fare nulla
         if heads_attention_level is None:
@@ -92,8 +93,8 @@ class WorkspaceView(QFrame):
         if self.heatmap_view:
             self.heatmap_view.update_data(heads_attention_level, token_list)
         
-        if self.token_view:
-            self.token_view.update_data(heads_attention_level, token_list)
+        if self.token_action_view:
+            self.token_action_view.update_data(heads_attention_level, token_list,action_list)
         
 
     def _switch_to_tab_mode(self):
@@ -118,7 +119,7 @@ class WorkspaceView(QFrame):
         
         self.tabs.addTab(self.grid_view, "Level view")
         self.tabs.addTab(self.heatmap_view, "Heatmap")
-        self.tabs.addTab(self.token_view, "Tokens Attention")
+        self.tabs.addTab(self.token_action_view, "Tokens Attention")
 
     def _clear_main_layout(self):
         """
