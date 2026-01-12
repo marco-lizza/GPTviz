@@ -60,8 +60,8 @@ class ActionListPane(QWidget):
         usando un unico StyleSheet combinato sulla Label per evitare conflitti.
         """
         # --- CONFIGURAZIONE COLORI ---
-        c_bg_topk = settings.PALETTE["app_color"]         # Verde (Sfondo Top-K)
-        c_border_sel = "#F4D35E"
+        c_bg_topk =settings.GRAPH_PALETTE["ACTIONS_CORRELATED"]
+        c_border_sel = settings.GRAPH_PALETTE["ACTION_SOURCE"]
         c_transparent = "transparent"
         
         # Pulisci la selezione di default di Qt (quella blu)
@@ -112,8 +112,8 @@ class ActionListPane(QWidget):
 
         # Definizioni colori
         c_text_normal = "white"
-        c_text_highlight = "#61afef"   # Blu (Suggerito)
-        c_text_selected = "#E54DBA"    # Verde (Attuale Selezione)
+        c_text_highlight = settings.GRAPH_PALETTE["TOKEN_CORRELATED"]
+        c_text_selected = settings.GRAPH_PALETTE["TOKEN_SOURCE"]
         
 
         for row in range(self.list_widget.count()):

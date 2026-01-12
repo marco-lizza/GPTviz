@@ -1,11 +1,13 @@
 from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel, QTabWidget
 from PyQt6.QtCore import Qt
 
-from .attention_heatmap_tab import AttentionHeatmapView
-from .tokens_actions_attention_tab import TokenActionsAttentionView
-from .attentions_level_tab import MultiHeadAttentionView
+from .workspace_widget_components.heatmap_tabs.attention_heatmap_tab import AttentionHeatmapView
+from .workspace_widget_components.tokens_actions_attention_tab.tokens_actions_attention_tab import TokenActionsAttentionView
+from .workspace_widget_components.heatmap_tabs.attentions_level_tab import MultiHeadAttentionView
 
 from src.config import settings
+
+from src.view.main_window_components.main_window_viewmodels.action_attention_view_model import ActionAttentionViewModel
 
 class WorkspaceView(QFrame):
     """
@@ -27,21 +29,20 @@ class WorkspaceView(QFrame):
         tabs (QTabWidget): Il widget contenitore delle schede (esiste solo nello stato Active).
     """
 
+class WorkspaceView(QFrame):
     def __init__(self):
-        """Inizializza il frame e imposta lo stato iniziale (Idle)."""
         super().__init__()
-
-        # Creazione del layout verticale principale che conterrà o la Label o i Tab
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
         
-        # Vengono tenuti in memoria per poterli aggiornare senza ricrearli ogni volta.
+        # Istanza del ViewModel
+        self.view_model = ActionAttentionViewModel()
+        
         self.grid_view = None
         self.heatmap_view = None
-        self.token_view = None
+        self.token_action_view = None # La tua vista azioni
         self.tabs = None
         
-        # Imposta lo stato iniziale (mostra il messaggio "No level selected")
         self.reset_view()
 
     def reset_view(self):
@@ -70,7 +71,7 @@ class WorkspaceView(QFrame):
         self.token_action_view = TokenActionsAttentionView()
         self.tabs = None
 
-    def visualize_attentions(self, heads_attention_level, token_list,action_list):
+    def visualize_attentions(self, heads_attention_level, token_list, action_list):
         """
         Riceve i dati e passa allo stato 'Visualization' (Tabs).
 
@@ -79,22 +80,24 @@ class WorkspaceView(QFrame):
             token_list (list[str]): I tokens del problema attualmente visualizzato
             action_list (list[str]): Le actions del problema attualmente visualizzato
         """
-        # Controllo di sicurezza: se non ci sono dati, non fare nulla
-        if heads_attention_level is None:
-            return
+        if heads_attention_level is None: return
 
-        # Lazy Initialization: Crea la struttura a schede (QTabWidget) solo se non esiste già.
+        # 1. Carica i dati nel ViewModel
+        self.view_model.load_data(heads_attention_level, token_list, action_list)
+
         if self.tabs is None:
             self._switch_to_tab_mode()
 
+        # 2. Passa il ViewModel a TUTTE le viste
+        # Ognuna ora sa come gestirsi autonomamente
         if self.grid_view:
-            self.grid_view.update_data(heads_attention_level)
+            self.grid_view.set_view_model(self.view_model)
 
         if self.heatmap_view:
-            self.heatmap_view.update_data(heads_attention_level, token_list)
+            self.heatmap_view.set_view_model(self.view_model)
         
         if self.token_action_view:
-            self.token_action_view.update_data(heads_attention_level, token_list,action_list)
+            self.token_action_view.set_view_model(self.view_model)
         
 
     def _switch_to_tab_mode(self):
@@ -116,6 +119,10 @@ class WorkspaceView(QFrame):
         self.tabs.setDocumentMode(True) 
         
         self.main_layout.addWidget(self.tabs)
+
+        self.grid_view = MultiHeadAttentionView()
+        self.heatmap_view = AttentionHeatmapView()
+        self.token_action_view = TokenActionsAttentionView()
         
         self.tabs.addTab(self.grid_view, "Level view")
         self.tabs.addTab(self.heatmap_view, "Heatmap")

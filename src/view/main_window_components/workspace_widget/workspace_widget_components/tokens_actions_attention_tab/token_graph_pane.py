@@ -1,16 +1,15 @@
 import numpy as np
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, 
                              QGraphicsScene, QGraphicsPathItem)
-from PyQt6.QtGui import QColor, QFont, QPainter, QPainterPath, QFontMetrics,QIcon
+from PyQt6.QtGui import QColor, QFont, QPainter, QPainterPath, QFontMetrics, QIcon
 from PyQt6.QtCore import QRectF, QPointF
 
 from src.config import settings
 
-from .graph_utils import BaseNodeItem, draw_squared_link
+from .graph_utils import BaseNodeItem, draw_vertical_squared_link
 from .token_attention_workboard import ZoomableGraphicsView
 
 class TokenGraphPane(QWidget):
-    """Pannello inferiore: dettaglio Token."""
     def __init__(self, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout(self)
@@ -45,7 +44,7 @@ class TokenGraphPane(QWidget):
         self.global_matrix = None
         self.global_tokens = []
         self.top_k = 5
-        self.current_top_targets = [] # Per evidenziare nella lista principale
+        self.current_top_targets = [] 
 
     def load_action_tokens(self, action_name, global_matrix, all_tokens, action_indices, top_k):
         self.global_matrix = global_matrix
@@ -93,27 +92,63 @@ class TokenGraphPane(QWidget):
             self.current_top_targets.append(idx)
             
         source_name = self.global_tokens[source_idx]
-        
-        # Source Node
-        src_rect = self._add_node(0, 0, source_name, QColor("#E54DBA"), source_idx)
-        src_out = QPointF(src_rect.right(), src_rect.center().y())
 
-        # Target Nodes
-        start_x = 300
-        spacing_y = 60
-        total_h = len(self.current_top_targets) * spacing_y
-        current_y = -(total_h / 2) + (spacing_y / 2)
-        font_link = QFont("Arial", 7)
+        # --- CONFIGURAZIONE METRICHE FONT ---
+        # Deve corrispondere a _add_node: Arial 11, Padding 20
+        font_node = QFont("Arial", 11)
+        fm = QFontMetrics(font_node)
+        padding_node = 20
+        gap = 30 # Distanza minima tra nodi
+
+        # --- 1. PRE-CALCOLO DIMENSIONI ---
+        target_nodes_data = []
+        total_block_width = 0
         
         for t_idx in self.current_top_targets:
             weight = attention_row[t_idx]
-            target_name = self.global_tokens[t_idx]
+            text = self.global_tokens[t_idx]
             
-            dst_rect = self._add_node(start_x, current_y, target_name, QColor("#61afef"), t_idx)
-            dst_in = QPointF(dst_rect.left(), dst_rect.center().y())
+            # Calcolo larghezza esatta: testo + padding
+            node_width = fm.horizontalAdvance(text) + padding_node
             
-            draw_squared_link(self.scene, src_out, dst_in, weight, font_link)
-            current_y += spacing_y
+            target_nodes_data.append({
+                'idx': t_idx,
+                'text': text,
+                'weight': weight,
+                'width': node_width
+            })
+            total_block_width += node_width
+
+        # Aggiungi spazio per i gap (n-1 gaps)
+        if len(target_nodes_data) > 1:
+            total_block_width += (len(target_nodes_data) - 1) * gap
+        
+        # --- 2. DISEGNO ---
+
+        # Nodo Source (In basso al centro, 0,0)
+        src_rect = self._add_node(0, 0, source_name, QColor(settings.GRAPH_PALETTE["TOKEN_SOURCE"]), source_idx)
+        src_out = QPointF(src_rect.center().x(), src_rect.top())
+
+        # Configurazione Layout Target (Sopra)
+        target_y = -120 
+        font_link = QFont("Arial", 7)
+        
+        # Inizia a disegnare da sinistra per centrare tutto
+        current_left_x = -(total_block_width / 2)
+        
+        for item in target_nodes_data:
+            # Calcola il centro del nodo corrente basandosi sul cursore sinistro
+            node_center_x = current_left_x + (item['width'] / 2)
+            
+            dst_rect = self._add_node(node_center_x, target_y, item['text'], 
+                                      QColor(settings.GRAPH_PALETTE["TOKEN_CORRELATED"]), item['idx'])
+            
+            dst_in = QPointF(dst_rect.center().x(), dst_rect.bottom())
+            
+            draw_vertical_squared_link(self.scene, src_out, dst_in, item['weight'], font_link)
+            
+            # Sposta il cursore a destra
+            current_left_x += item['width'] + gap
 
         self.view.setSceneRect(self.scene.itemsBoundingRect().adjusted(-50, -50, 50, 50))
         self.lbl_info.setText(f"Top-{self.top_k} connections for '{source_name}'")
@@ -123,7 +158,8 @@ class TokenGraphPane(QWidget):
         fm = QFontMetrics(font)
         w = fm.horizontalAdvance(text) + 20
         h = 30
-        rect = QRectF(x, y - h/2, w, h)
+        # Centra il rettangolo rispetto a x,y
+        rect = QRectF(x - w/2, y - h/2, w, h)
         path = QPainterPath()
         path.addRoundedRect(rect, 4, 4)
         

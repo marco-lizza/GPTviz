@@ -1,13 +1,12 @@
-from PyQt6.QtWidgets import (QMainWindow, QSplitter, QToolBar, QStatusBar, 
-                             QLabel, QWidget, QSizePolicy)
-from PyQt6.QtGui import QAction, QIcon
-from PyQt6.QtCore import Qt, pyqtSignal, QSize
+from PyQt6.QtWidgets import (QMainWindow, QSplitter, QStatusBar, 
+                             QLabel)
+from PyQt6.QtCore import Qt
 
-from .components.console_widget import ConsoleView
-from .components.sidebar_widget import SidebarView
-from .components.workspace_widget import WorkspaceView
-from .components.toolbar_widget import Toolbar
-from .components.attentions_navigator_widget import Attention_navigator_widget
+from .main_window_components.console_widget import ConsoleView
+from .main_window_components.sidebar_widget import SidebarView
+from .main_window_components.workspace_widget.workspace_widget import WorkspaceView
+from .main_window_components.toolbar_widget import Toolbar
+from .main_window_components.attentions_navigator_widget import Attention_navigator_widget
 
 from src.config import settings
 
@@ -48,7 +47,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("GPTviz")
-        self.resize(1024, 768)
+        self.resize(1333, 1000)
 
         # INIZIALIZZO I COMPONENTI
         # Questi attributi sono pubblici e verranno letti dall'AppController
@@ -66,6 +65,7 @@ class MainWindow(QMainWindow):
 
         # Setup layout della window (Central Widget)
         self._setup_layout()
+        self.center_on_screen()
 
     def _setup_statusbar(self):
         """
@@ -138,3 +138,25 @@ class MainWindow(QMainWindow):
         self.h_splitter.setSizes([150, 150]) 
 
         self.setCentralWidget(self.h_splitter)
+
+    def center_on_screen(self):
+        """
+        Centra la finestra rispetto allo schermo disponibile (escludendo taskbar/dock).
+        """
+        # 1. Ottieni la geometria dello schermo corrente (dove apparirà la finestra)
+        screen = self.screen()
+        
+        # availableGeometry() restituisce l'area utilizzabile (esclusa barra delle applicazioni)
+        screen_geometry = screen.availableGeometry()
+        
+        # 2. Ottieni la geometria del rettangolo della tua finestra
+        # frameGeometry() include anche la barra del titolo e i bordi
+        window_geometry = self.frameGeometry()
+        
+        # 3. Sposta il centro logico del rettangolo della finestra 
+        # al centro del rettangolo dello schermo
+        window_geometry.moveCenter(screen_geometry.center())
+        
+        # 4. Muovi fisicamente la finestra all'angolo in alto a sinistra 
+        # calcolato nel passaggio precedente
+        self.move(window_geometry.topLeft())

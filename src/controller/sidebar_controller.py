@@ -1,5 +1,5 @@
 from src.model.app_model import AppModel
-from src.view.components.sidebar_widget import SidebarView
+from src.view.main_window_components.sidebar_widget import SidebarView
 
 class Sidebar_controller:
     """

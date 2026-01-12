@@ -1,5 +1,5 @@
 from src.model.app_model import AppModel
-from src.view.components.console_widget import ConsoleView
+from src.view.main_window_components.console_widget import ConsoleView
 
 class Console_controller:
     """

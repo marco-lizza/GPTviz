@@ -34,8 +34,11 @@ class SettingsManager:
         self.ZOOM_FACTOR = DEFAULTS_MAIN_VALUE["ZOOM_FACTOR"]
         self.MIN_ZOOM = DEFAULTS_MAIN_VALUE["MIN_ZOOM"]
         self.MAX_ZOOM = DEFAULTS_MAIN_VALUE["MAX_ZOOM"]
+        self.TEXT_FONT = DEFAULTS_MAIN_VALUE["TEXT_FONT"]
+        self.TEXT_SIZE = DEFAULTS_MAIN_VALUE["TEXT_SIZE"]
         self.THEME_MODE = DEFAULTS_MAIN_VALUE["THEME_MODE"]
         self.CONSOLE_PALETTE = DEFAULT_CONSOLE_PALETTE.copy()
+        self.GRAPH_PALETTE = DEFAULT_GRAPH_PALETTE.copy()
 
     def get_stylesheet(self, filename: str) -> str:
         """

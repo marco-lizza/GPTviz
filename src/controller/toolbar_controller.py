@@ -1,5 +1,5 @@
 from src.model.app_model import AppModel
-from src.view.components.toolbar_widget import Toolbar
+from src.view.main_window_components.toolbar_widget import Toolbar
 
 class Tooolbar_controller:
     """

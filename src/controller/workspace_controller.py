@@ -1,5 +1,5 @@
 from src.model.app_model import AppModel
-from src.view.components.workspace_widget import WorkspaceView
+from src.view.main_window_components.workspace_widget.workspace_widget import WorkspaceView
 
 class Workspace_controller:
     """

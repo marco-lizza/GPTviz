@@ -1,5 +1,5 @@
 from src.model.app_model import AppModel
-from src.view.components.attentions_navigator_widget import Attention_navigator_widget
+from src.view.main_window_components.attentions_navigator_widget import Attention_navigator_widget
 
 class Attention_navigator_controller:
     """
