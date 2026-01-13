@@ -40,7 +40,7 @@ class WorkspaceView(QFrame):
         
         self.grid_view = None
         self.heatmap_view = None
-        self.token_action_view = None # La tua vista azioni
+        self.token_action_view = None
         self.tabs = None
         
         self.reset_view()
@@ -71,7 +71,7 @@ class WorkspaceView(QFrame):
         self.token_action_view = TokenActionsAttentionView()
         self.tabs = None
 
-    def visualize_attentions(self, heads_attention_level, token_list, action_list):
+    def visualize_attentions(self, heads_attention_level, token_list, action_list,action_link_matrices=None):
         """
         Riceve i dati e passa allo stato 'Visualization' (Tabs).
 
@@ -82,14 +82,13 @@ class WorkspaceView(QFrame):
         """
         if heads_attention_level is None: return
 
-        # 1. Carica i dati nel ViewModel
-        self.view_model.load_data(heads_attention_level, token_list, action_list)
+        # Carica i dati nel ViewModel
+        self.view_model.load_data(heads_attention_level, token_list, action_list,action_link_matrices)
 
         if self.tabs is None:
             self._switch_to_tab_mode()
 
-        # 2. Passa il ViewModel a TUTTE le viste
-        # Ognuna ora sa come gestirsi autonomamente
+        # Passa il ViewModel a TUTTE le viste
         if self.grid_view:
             self.grid_view.set_view_model(self.view_model)
 

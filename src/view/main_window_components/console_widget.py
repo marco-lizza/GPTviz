@@ -26,33 +26,30 @@ class ConsoleView(QTextEdit):
         """
         super().__init__()
 
-        # Applica lo stile CSS specifico per l'area di testo e la scrollbar
         stylesheet = settings.get_stylesheets("QTextEdit_style.qss", "QScrollBar_style.qss")
         self.setStyleSheet(stylesheet)
         
         # Impedisce all'utente di scrivere nella console
         self.setReadOnly(True)
 
-        # Mappa di traduzione: Tag Custom -> HTML con stili CSS inline.
-        # I colori vengono letti dinamicamente da settings.CONSOLE_PALETTE.
         self.tag_map = {
-            # Errori (Rosso)
+            # Errori
             "<erro>": f"<span style='color: {settings.CONSOLE_PALETTE['ERRO_COLOR']}; font-weight: bold;'>(erro) ",
             "</erro>": "</span>",
             
-            # Successo (Verde)
+            # Successo
             "<succ>": f"<span style='color: {settings.CONSOLE_PALETTE['SUCC_COLOR']};'>(succ) ",
             "</succ>": "</span>",
             
-            # Warning (Arancio)
+            # Warning
             "<warn>": f"<span style='color: {settings.CONSOLE_PALETTE['WARN_COLOR']};'>(warn) ",
             "</warn>": "</span>",
             
-            # Info / Highlight (Ciano)
+            # Info / Highlight
             "<info>": f"<span style='color: {settings.CONSOLE_PALETTE['INFO_COLOR']};'>(info) ",
             "</info>": "</span>",
             
-            # Evidenziato generico (Viola)
+            # Evidenziato generico
             "<gene>": f"<span style='color: {settings.CONSOLE_PALETTE['GENE_COLOR']}; font-weight: bold;'>(gene) ",
             "</gene>": "</span>"
         }
@@ -70,7 +67,6 @@ class ConsoleView(QTextEdit):
         for tag, html_val in self.tag_map.items():
             formatted_text = formatted_text.replace(tag, html_val)
         
-        # Gestione a capo HTML
         formatted_text = formatted_text.replace("\n", "<br>")
 
         final_html = f"<span style='color: #666666;'>>></span> {formatted_text}"

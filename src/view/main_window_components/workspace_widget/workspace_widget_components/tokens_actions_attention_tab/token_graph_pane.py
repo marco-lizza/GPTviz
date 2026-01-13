@@ -1,6 +1,6 @@
 import numpy as np
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, 
-                             QGraphicsScene, QGraphicsPathItem)
+                             QGraphicsScene)
 from PyQt6.QtGui import QColor, QFont, QPainter, QPainterPath, QFontMetrics, QIcon
 from PyQt6.QtCore import QRectF, QPointF
 
@@ -93,14 +93,11 @@ class TokenGraphPane(QWidget):
             
         source_name = self.global_tokens[source_idx]
 
-        # --- CONFIGURAZIONE METRICHE FONT ---
-        # Deve corrispondere a _add_node: Arial 11, Padding 20
-        font_node = QFont("Arial", 11)
+        font_node = QFont(settings.TEXT_FONT, settings.TEXT_SIZE)
         fm = QFontMetrics(font_node)
         padding_node = 20
         gap = 30 # Distanza minima tra nodi
 
-        # --- 1. PRE-CALCOLO DIMENSIONI ---
         target_nodes_data = []
         total_block_width = 0
         
@@ -123,21 +120,17 @@ class TokenGraphPane(QWidget):
         if len(target_nodes_data) > 1:
             total_block_width += (len(target_nodes_data) - 1) * gap
         
-        # --- 2. DISEGNO ---
-
+        # --- DISEGNO ---
         # Nodo Source (In basso al centro, 0,0)
         src_rect = self._add_node(0, 0, source_name, QColor(settings.GRAPH_PALETTE["TOKEN_SOURCE"]), source_idx)
         src_out = QPointF(src_rect.center().x(), src_rect.top())
 
-        # Configurazione Layout Target (Sopra)
         target_y = -120 
-        font_link = QFont("Arial", 7)
+        font_link = QFont(settings.TEXT_FONT, settings.TEXT_SIZE)
         
-        # Inizia a disegnare da sinistra per centrare tutto
         current_left_x = -(total_block_width / 2)
         
         for item in target_nodes_data:
-            # Calcola il centro del nodo corrente basandosi sul cursore sinistro
             node_center_x = current_left_x + (item['width'] / 2)
             
             dst_rect = self._add_node(node_center_x, target_y, item['text'], 
@@ -145,7 +138,7 @@ class TokenGraphPane(QWidget):
             
             dst_in = QPointF(dst_rect.center().x(), dst_rect.bottom())
             
-            draw_vertical_squared_link(self.scene, src_out, dst_in, item['weight'], font_link)
+            draw_vertical_squared_link(self.scene, src_out, dst_in, font_link, item['weight'])
             
             # Sposta il cursore a destra
             current_left_x += item['width'] + gap
@@ -158,7 +151,6 @@ class TokenGraphPane(QWidget):
         fm = QFontMetrics(font)
         w = fm.horizontalAdvance(text) + 20
         h = 30
-        # Centra il rettangolo rispetto a x,y
         rect = QRectF(x - w/2, y - h/2, w, h)
         path = QPainterPath()
         path.addRoundedRect(rect, 4, 4)

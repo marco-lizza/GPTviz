@@ -190,7 +190,7 @@ class AppModel(QObject):
 
             self.log_message.emit(f"<info>Iteration: {iter_idx} - Level: {lev_idx} selected</info>")
             
-            # Emette la lista di matrici e la lista di token.
+            # Emette la lista di matrici, la lista di token e di action
             self.level_matrices_loaded.emit(matrices_list, token_list,action_list)
 
         except (IndexError, ValueError) as e:

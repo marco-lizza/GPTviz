@@ -1,6 +1,8 @@
 from src.model.app_model import AppModel
 from src.view.main_window_components.workspace_widget.workspace_widget import WorkspaceView
 
+import numpy as np
+
 class Workspace_controller:
     """
     Gestisce la logica dell'area di lavoro principale (Workspace).
@@ -43,5 +45,24 @@ class Workspace_controller:
                Quando il modello richiede pulizia (es. cambio file), la vista
                rimuove tutti i grafici correnti.
         """
-        self.model.level_matrices_loaded.connect(self.workspace_view.visualize_attentions)
+        self.model.level_matrices_loaded.connect(self.manage)
         self.model.clear_workspace.connect(self.workspace_view.reset_view)
+    def manage(self, matrices_list, token_list, action_list):
+        action_link_matrices = []
+        
+        # Determino la dimensione della matrice quadrata in base al numero di azioni
+        num_actions = len(action_list) 
+
+        for i in range(len(matrices_list)):
+                    full_random_matrix = np.random.randint(2, size=(num_actions, num_actions))
+                    random_link_matrix = np.tril(full_random_matrix, k=-1)
+                    
+                    action_link_matrices.append(random_link_matrix)
+
+        # Passo la nuova lista 'action_link_matrices' alla funzione di visualizzazione
+        self.workspace_view.visualize_attentions(
+            matrices_list, 
+            token_list, 
+            action_list, 
+            action_link_matrices
+        )

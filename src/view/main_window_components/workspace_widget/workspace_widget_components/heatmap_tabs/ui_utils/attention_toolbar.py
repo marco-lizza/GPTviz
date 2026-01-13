@@ -11,11 +11,10 @@ class AttentionControls(QFrame):
     Gestisce Head, Gamma, Mode, Normalizzazione e Salvataggio.
     """
     
-    # Segnali verso le View
     head_changed = pyqtSignal(int)      
     gamma_changed = pyqtSignal(float)
-    mode_changed = pyqtSignal(int)       # 0 = Token, 1 = Action
-    normalize_toggled = pyqtSignal(bool) # True = Prob, False = Raw/Density
+    mode_changed = pyqtSignal(int) 
+    normalize_toggled = pyqtSignal(bool)
     save_clicked = pyqtSignal()          
 
     def __init__(self, parent=None, show_head_selector=True, show_save_button=False):
@@ -29,10 +28,8 @@ class AttentionControls(QFrame):
         layout.setContentsMargins(10, 5, 10, 5) 
         layout.setSpacing(15)
         
-        # Stile base scuro per garantire visibilità
         self.setStyleSheet("background-color: #181818; color: #dddddd;")
 
-        # --- 1. HEAD SELECTOR (Opzionale) ---
         if self.show_head_selector:
             head_label = QLabel("HEAD:")
             head_label.setStyleSheet(settings.get_stylesheet("QLabel_style.qss"))
@@ -44,7 +41,6 @@ class AttentionControls(QFrame):
             self.combo_heads.currentIndexChanged.connect(self.head_changed.emit)
             layout.addWidget(self.combo_heads)
 
-        # --- 2. GAMMA (Sempre presente) ---
         gamma_label = QLabel("GAMMA:")
         gamma_label.setStyleSheet(settings.get_stylesheet("QLabel_style.qss"))
         layout.addWidget(gamma_label)
@@ -59,7 +55,6 @@ class AttentionControls(QFrame):
 
         layout.addSpacing(10)
 
-        # --- 3. VIEW MODE (Sempre presente) ---
         mode_label = QLabel("MODE:")
         mode_label.setStyleSheet(settings.get_stylesheet("QLabel_style.qss"))
         layout.addWidget(mode_label)
@@ -67,12 +62,10 @@ class AttentionControls(QFrame):
         self.combo_mode = QComboBox()
         self.combo_mode.addItems(["Token", "Action"])
         
-        # Stile esplicito per leggibilità su sfondo scuro
         self.combo_mode.setStyleSheet(settings.get_stylesheets("QComboBox_style.qss"))
         self.combo_mode.currentIndexChanged.connect(self._on_internal_mode_changed)
         layout.addWidget(self.combo_mode)
 
-        # --- 4. NORMALIZATION CHECKBOX (Nascosta di default) ---
         self.chk_normalize = QCheckBox("Prob. (row=1):")
         self.chk_normalize.setStyleSheet(settings.get_stylesheets("QCheckBox_style.qss"))
         self.chk_normalize.setChecked(True)
@@ -82,7 +75,6 @@ class AttentionControls(QFrame):
         
         layout.addStretch()
 
-        # --- 5. SAVE BUTTON (Opzionale) ---
         if self.show_save_button:
             btn_save = QPushButton()
             if QIcon("assets/utility/save.svg").isNull():
@@ -109,8 +101,6 @@ class AttentionControls(QFrame):
         is_action_mode = (index == 1)
         self.chk_normalize.setVisible(is_action_mode)
         self.mode_changed.emit(index)
-
-    # --- Public API ---
 
     def set_heads(self, count: int):
         if not self.show_head_selector: return

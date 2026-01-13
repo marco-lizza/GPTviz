@@ -29,19 +29,13 @@ class AttentionHeatmapView(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
         self.setStyleSheet(f"background-color: #181818;")
 
-        # Configurazione: SI Head Selector, NO Save Button
         self.controls = AttentionControls(
             parent=self, 
             show_head_selector=True, 
             show_save_button=True 
         )
         
-        # --- CONNESSIONE SEGNALI ---
-        
-        # Mode Change -> Resetta im_ref per forzare il ridisegno assi
         self.controls.mode_changed.connect(self._on_mode_changed)
-        
-        # Altri cambi (Head, Gamma, Norm) -> Gestiti da _draw_heatmap (con Fast Path)
         self.controls.head_changed.connect(lambda _: self._draw_heatmap())
         self.controls.gamma_changed.connect(lambda _: self._draw_heatmap())
         self.controls.normalize_toggled.connect(lambda _: self._draw_heatmap())
@@ -97,16 +91,14 @@ class AttentionHeatmapView(QWidget):
         matrix_processed = np.power(self.current_data_matrix, gamma)
         ax = self.canvas.axes
 
-        # --- FAST PATH OPTIMIZATION ---
-        # Se l'immagine esiste e la shape è identica (es. cambio normalizzazione),
-        # aggiorniamo solo i dati.
+        # Se l'immagine esiste e la shape è identica aggiorniamo solo i dati.
         if self.im_ref is not None and self.im_ref.get_array().shape == matrix_processed.shape:
             self.im_ref.set_data(matrix_processed)
             self.im_ref.set_clim(vmin=0, vmax=1)
             self.canvas.draw()
             return
 
-        # --- FULL REDRAW (Slow Path) ---
+        # altrimenti ridisegno tutto
         ax.clear()
         self.im_ref = ax.imshow(
             matrix_processed,

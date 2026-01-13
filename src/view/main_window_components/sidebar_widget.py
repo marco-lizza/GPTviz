@@ -32,11 +32,9 @@ class FileList(QTreeWidget):
         self.setTextElideMode(Qt.TextElideMode.ElideRight)
         self.setUniformRowHeights(True)
         
-        # Caricamento e unione di stili multipli (Tree + Scrollbar)
         stylesheet = settings.get_stylesheets("QTreeWidget_style.qss", "QScrollBar_style.qss")
         self.setStyleSheet(stylesheet)
         
-        # Connessione segnale interno
         self.itemClicked.connect(self._on_file_clicked)
 
         # Abilito il tracciamento mouse. 
@@ -87,13 +85,13 @@ class FileList(QTreeWidget):
             domain (str): Il nome del raggruppamento (cartella virtuale).
             names_list (list): Lista di stringhe con i nomi dei file.
         """
-        # Creazione Nodo Cartella (Padre)
+        # Creazione Nodo Cartella
         dir_item = QTreeWidgetItem(self)
         dir_item.setText(0, domain)
         dir_item.setIcon(0, QIcon("assets/file_icons/directory.svg"))
         dir_item.setData(0, Qt.ItemDataRole.UserRole, "dir")
 
-        # Creazione Nodi File (Figli)
+        # Creazione Nodi File
         for name in names_list:
             file_item = QTreeWidgetItem(dir_item)
             file_item.setText(0, name)
@@ -137,19 +135,16 @@ class SidebarView(QWidget):
     def __init__(self):
         super().__init__()
         
-        # Vincoli dimensionali CSS
         self.setStyleSheet("SidebarView { min-width: 200px; max-width: 250px; }")
         
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        # Configurazione Titolo
         self.title_label = QLabel("EXPLORER")
         stylesheet = settings.get_stylesheet("QLabel_style.qss")
         self.title_label.setStyleSheet(stylesheet)
         
-        # Configurazione Lista
         self.file_list = FileList()
 
         layout.addWidget(self.title_label)

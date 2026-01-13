@@ -5,22 +5,20 @@ class ActionAttentionViewModel:
         self.raw_attention_tensors = []
         self.tokens = []
         self.actions = []
+        self.action_link_matrices=[]
         
-        # Mappature e Matrici di Proiezione
-        self.action_map = []  # List[List[int]]
+        self.action_map = []
         self.projection_matrix = None
         self.action_lengths = None
         
         # Cache per le matrici calcolate (Lazy Loading)
-        # Chiave: (head_idx, normalize_by_row) -> Valore: np.array
         self._aggregated_cache = {}
 
-    def load_data(self, attention_tensors, token_list, action_list):
+    def load_data(self, attention_tensors, token_list, action_list,action_link_matrices=None):
         """
         Carica i dati grezzi e pre-calcola le matrici di proiezione.
         Da chiamare ogni volta che cambia il livello o il sample.
         """
-        # 1. Reset e Ingestione dati
         self._aggregated_cache = {}
         if not isinstance(attention_tensors, list):
             self.raw_attention_tensors = [np.array(attention_tensors)]
@@ -29,22 +27,20 @@ class ActionAttentionViewModel:
             
         self.tokens = token_list
         self.actions = action_list
+
+        self.action_link_matrices=action_link_matrices
         
-        # 2. Costruzione Action Map
+        # Costruzione Action Map
         max_tokens = self.raw_attention_tensors[0].shape[0] if self.raw_attention_tensors else 0
         self.action_map = []
         current_idx = 0
         
         for action in action_list:
-            # Euristiche per dividere i token (se necessario) o usare la logica esistente
-            # Assumiamo che action_list sia allineato con i token
-            # Nota: Qui replico la tua logica di split, ma assicurati che sia coerente col tokenizer
             n_parts = len(action.split('_')) 
             indices = [current_idx + i for i in range(n_parts) if current_idx + i < max_tokens]
             self.action_map.append(indices)
             current_idx += n_parts
 
-        # 3. Costruzione Matrice di Proiezione (P)
         n_actions = len(self.actions)
         
         self.projection_matrix = np.zeros((n_actions, max_tokens), dtype=np.float32)
@@ -77,15 +73,13 @@ class ActionAttentionViewModel:
 
         # --- CALCOLO VETTORIALIZZATO ---
         raw_matrix = self.raw_attention_tensors[head_idx] # (T, T)
-        P = self.projection_matrix                        # (N, T)
+        P = self.projection_matrix # (N, T)
         
-        # 1. Aggregazione Sorgente (Somma righe token -> Azioni)
         temp = P @ raw_matrix 
         
-        # 2. Aggregazione Target (Somma colonne token -> Azioni)
         sum_matrix = temp @ P.T # (N, N)
         
-        # 3. Normalizzazione
+        # Normalizzazione
         if normalize_by_row:
             # Probabilità di transizione (Somma righe = 1)
             divisors = self.action_lengths[:, np.newaxis]
@@ -106,3 +100,4 @@ class ActionAttentionViewModel:
 
     def get_num_heads(self):
         return len(self.raw_attention_tensors)
+    

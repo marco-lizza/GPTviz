@@ -55,21 +55,14 @@ class Attention_navigator_widget(QWidget):
         super().__init__()
 
         self.setStyleSheet("Attention_navigator_widget { min-width: 200px; max-width: 250px; }")
-        
-        # --- Layout Principale (Stack) ---
-        # QStackedLayout permette di sovrapporre widget e mostrarne solo uno alla volta
         self.stack_layout = QStackedLayout(self)
-        
-        # --- Label (Stato Vuoto) ---
+
         self.info_label = QLabel("No file selected")
         self.info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        # Applica stile Label
         lbl_style = settings.get_stylesheets("QLabel_style.qss")
         self.info_label.setStyleSheet(lbl_style)
         
-        # --- Tree (Navigatore) ---
         self.tree = InternalTreeWidget()
-        # Applica stile Tree
         tree_style = settings.get_stylesheets("QTreeWidget_style.qss", "QScrollBar_style.qss")
         self.tree.setStyleSheet(tree_style)
         

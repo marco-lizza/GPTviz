@@ -25,7 +25,9 @@ DEFAULT_GRAPH_PALETTE= {
             "ACTIONS_CORRELATED": "#6834b2",
             "TOKEN_SOURCE": "#E54DBA",
             "TOKEN_CORRELATED": "#61afef",
-            "LINE":"#7ED67D"
+            "LINE":"#939393",
+            "EXPLICIT_LINK_FOUND":"#2ecc71",
+            "EXPLICIT_LINK_NOT_FOUND":"#b62a1b"
         } 
 
 DARK_PALETTE = {

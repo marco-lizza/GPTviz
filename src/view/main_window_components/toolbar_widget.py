@@ -78,7 +78,7 @@ class Toolbar(QToolBar):
         spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self.addWidget(spacer)
 
-        # Azione 3: Exit (a destra)
+        # Azione 4: Exit (a destra)
         icon_exit =  QIcon("assets/utility/close.svg")
         action_exit = QAction(icon_exit, "Exit", self)
         action_exit.setShortcut("Ctrl+E") 

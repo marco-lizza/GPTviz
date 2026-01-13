@@ -33,25 +33,15 @@ class MultiHeadAttentionView(QWidget):
         self.layout.addWidget(self.canvas)
 
     def _init_toolbar(self):
-        # Configurazione: NO Head Selector, SI Save Button
         self.controls = AttentionControls(
             parent=self, 
             show_head_selector=False, 
             show_save_button=True
         )
         
-        # --- CONNESSIONE SEGNALI ---
-        
-        # 1. Mode Change -> Dimensioni cambiano -> REBUILD COMPLETO
         self.controls.mode_changed.connect(self._rebuild_grid_structure)
-        
-        # 2. Normalizzazione -> Dimensioni uguali -> AGGIORNAMENTO RAPIDO (Pixel)
         self.controls.normalize_toggled.connect(self._refresh_pixel_data)
-        
-        # 3. Gamma -> AGGIORNAMENTO RAPIDO (Pixel)
         self.controls.gamma_changed.connect(self._refresh_pixel_data)
-        
-        # 4. Save
         self.controls.save_clicked.connect(self.save_grid)
         
         self.layout.addWidget(self.controls)

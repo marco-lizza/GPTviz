@@ -91,7 +91,7 @@ class MainWindow(QMainWindow):
         3. `h1_splitter`: Divide il Navigatore (sx) dal Workspace grafico (dx).
         """
 
-        # 1. Splitter Interno Orizzontale (Navigator | Workspace)
+        # Splitter Interno Orizzontale (Navigator | Workspace)
         self.h1_splitter = QSplitter(Qt.Orientation.Horizontal)
         self.h1_splitter.addWidget(self.attention_navigator) 
         self.h1_splitter.addWidget(self.workspace)
@@ -104,11 +104,11 @@ class MainWindow(QMainWindow):
 
         # IMPOSTAZIONE PROPORZIONI
         # Quando allargo la finestra, il workspace cresce il doppio del pannello sinistro
-        self.h1_splitter.setStretchFactor(0, 1) # Peso 1 (1/3 del totale)
-        self.h1_splitter.setStretchFactor(1, 2) # Peso 2 (2/3 del totale)
+        self.h1_splitter.setStretchFactor(0, 1)
+        self.h1_splitter.setStretchFactor(1, 2)
         self.h1_splitter.setSizes([341, 683]) 
 
-        # 2. Splitter Verticale (Area Lavoro | Console)
+        # Splitter Verticale (Area Lavoro | Console)
         self.v_splitter = QSplitter(Qt.Orientation.Vertical)
         self.v_splitter.setHandleWidth(5)
         self.v_splitter.setStyleSheet(settings.get_stylesheet("QSplitter_style.qss"))
@@ -118,11 +118,11 @@ class MainWindow(QMainWindow):
         self.v_splitter.setCollapsible(0, False)
         self.v_splitter.setCollapsible(1, False)
         
-        self.v_splitter.setStretchFactor(0, 1) # Priorità all'area di lavoro
-        self.v_splitter.setStretchFactor(1, 0) # La console non cresce troppo
+        self.v_splitter.setStretchFactor(0, 1) 
+        self.v_splitter.setStretchFactor(1, 0) 
         self.v_splitter.setSizes([600, 168])
 
-        # 3. Splitter Principale Root (Sidebar | Area Destra)
+        # Splitter Principale Root (Sidebar | Area Destra)
         self.h_splitter = QSplitter(Qt.Orientation.Horizontal)
         self.h_splitter.addWidget(self.sidebar)
         self.h_splitter.setHandleWidth(5)
@@ -132,7 +132,6 @@ class MainWindow(QMainWindow):
         self.h_splitter.setCollapsible(0, False)
         self.h_splitter.setCollapsible(1, False)
         
-        # Facciamo 50% e 50% inizialmente, o bilanciato
         self.h_splitter.setStretchFactor(0, 1)
         self.h_splitter.setStretchFactor(1, 1)
         self.h_splitter.setSizes([150, 150]) 
@@ -143,20 +142,10 @@ class MainWindow(QMainWindow):
         """
         Centra la finestra rispetto allo schermo disponibile (escludendo taskbar/dock).
         """
-        # 1. Ottieni la geometria dello schermo corrente (dove apparirà la finestra)
         screen = self.screen()
-        
-        # availableGeometry() restituisce l'area utilizzabile (esclusa barra delle applicazioni)
         screen_geometry = screen.availableGeometry()
         
-        # 2. Ottieni la geometria del rettangolo della tua finestra
-        # frameGeometry() include anche la barra del titolo e i bordi
         window_geometry = self.frameGeometry()
-        
-        # 3. Sposta il centro logico del rettangolo della finestra 
-        # al centro del rettangolo dello schermo
         window_geometry.moveCenter(screen_geometry.center())
         
-        # 4. Muovi fisicamente la finestra all'angolo in alto a sinistra 
-        # calcolato nel passaggio precedente
         self.move(window_geometry.topLeft())
