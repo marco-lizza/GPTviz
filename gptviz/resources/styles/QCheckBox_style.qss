@@ -28,5 +28,5 @@ QCheckBox::indicator:unchecked:hover {{
 QCheckBox::indicator:checked {{
     background-color: {app_color}; 
     border: 1px solid {text_main};
-    image: url(gptviz/resources/assets/utility/check.svg);
+    image: url(%ASSETS_PATH%/utility/check.svg);
 }}

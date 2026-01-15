@@ -63,13 +63,13 @@ QSpinBox::up-button:hover, QSpinBox::down-button:hover {{
 /* --- ICONE FRECCE (SVG) --- */
 
 QDoubleSpinBox::up-arrow, QSpinBox::up-arrow {{
-    image: url(gptviz/resources/assets/attention_navigator/chevron_up.svg); 
+    image: url(%ASSETS_PATH%/attention_navigator/chevron_up.svg); 
     width: 10px;
     height: 10px;
 }}
 
 QDoubleSpinBox::down-arrow, QSpinBox::down-arrow {{
-    image: url(gptviz/resources/assets/attention_navigator/chevron_down.svg);
+    image: url(%ASSETS_PATH%/attention_navigator/chevron_down.svg);
     width: 10px;
     height: 10px;
 }}

@@ -129,7 +129,7 @@ class MultiHeadAttentionView(QWidget):
     def save_grid(self):
         if not self.image_refs: return
         file_path, _ = QFileDialog.getSaveFileName(
-            self, "Salva Griglia", "attention_grid.png", "Images (*.png *.jpg *.pdf)"
+            self, "Save", "attention_level_grid.png", "Images (*.png *.jpg *.pdf)"
         )
         if file_path:
             bg_color = self.canvas.fig.get_facecolor()

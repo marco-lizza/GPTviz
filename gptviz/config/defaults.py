@@ -9,7 +9,7 @@ DEFAULTS_MAIN_VALUE= {
     "TEXT_FONT": "Arial",
     "TEXT_SIZE": 10,
     "THEME_MODE": "dark",
-    "WORKSPACE_DIRECTORY": "workspace",
+    "WORKSPACE_DIRECTORY": "gptviz/workspace",
 } 
 
 DEFAULT_CONSOLE_PALETTE = {

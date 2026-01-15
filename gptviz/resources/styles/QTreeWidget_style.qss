@@ -37,10 +37,10 @@ QTreeWidget::item:!has-children:selected {{
 /* --- FRECCE --- */
 QTreeWidget::branch:has-children:!has-siblings:closed,
 QTreeWidget::branch:closed:has-children:has-siblings {{
-    image: url(gptviz/resources/assets/attention_navigator/chevron_right.svg);
+    image: url(%ASSETS_PATH%/attention_navigator/chevron_right.svg);
 }}
 
 QTreeWidget::branch:open:has-children:!has-siblings,
 QTreeWidget::branch:open:has-children:has-siblings {{
-    image: url(gptviz/resources/assets/attention_navigator/chevron_down.svg);
+    image: url(%ASSETS_PATH%/attention_navigator/chevron_down.svg);
 }}

@@ -1,11 +1,11 @@
 QSplitter::handle:vertical {{
     background-color: {secondary_color};
-    image: url(gptviz/resources/assets/utility/grip_horizontal.svg); 
+    image: url(%ASSETS_PATH%/utility/grip_horizontal.svg); 
 }}
 
 QSplitter::handle:horizontal {{
     background-color: {secondary_color};
-    image: url(gptviz/resources/assets/utility/grip_vertical.svg); 
+    image: url(%ASSETS_PATH%/utility/grip_vertical.svg); 
 }}
 
 QSplitter::handle:hover {{

@@ -55,18 +55,25 @@ class SettingsManager:
             str: Il contenuto CSS formattato e pronto per `setStyleSheet()`.
                  Restituisce stringa vuota in caso di errore.
         """
-        # Recupera la palette giusta in base allo stato attuale
         if self.THEME_MODE == "light":
             self.PALETTE = LIGHT_PALETTE
         else:
             self.PALETTE = DARK_PALETTE
 
-        current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        style_path = os.path.join(current_dir, "resources", "styles", filename)
+        package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        style_path = os.path.join(package_root, "resources", "styles", filename)
+        
+        assets_dir = os.path.join(package_root, "resources", "assets")
+    
+        assets_dir = assets_dir.replace('\\', '/')
 
         try:
             with open(style_path, "r") as f:
-                return f.read().format(
+                # Legge il contenuto grezzo
+                raw_content = f.read()
+
+                # Inietta i colori
+                formatted_content = raw_content.format(
                     primary_color=self.PALETTE["primary"],
                     secondary_color=self.PALETTE["secondary"],
                     terziary_color=self.PALETTE["terziary"],
@@ -77,8 +84,14 @@ class SettingsManager:
                     border_console=self.PALETTE["border_console"],
                     bg_dark=self.PALETTE["bg_main"] 
                 )
+
+                # Inietta il percorso immagini
+                final_content = formatted_content.replace("%ASSETS_PATH%", assets_dir)
+
+                return final_content
+
         except Exception as e:
-            print(f"Errore style: {e}")
+            print(f"Errore nel caricamento style '{filename}': {e}")
             return ""
     
     def get_stylesheets(self, *filenames: str) -> str:

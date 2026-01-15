@@ -19,7 +19,7 @@ class Attention_loader:
         scanner (MetadataScanner): Componente helper per l'indicizzazione dei file.
     """
 
-    def __init__(self, base_path="workspace/"):
+    def __init__(self, base_path):
         """
         Inizializza il loader e lo scanner dei metadati.
 
