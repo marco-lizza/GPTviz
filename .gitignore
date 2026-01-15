@@ -6,4 +6,3 @@ env/
 *.egg-info/
 build/
 dist/
-workspace/

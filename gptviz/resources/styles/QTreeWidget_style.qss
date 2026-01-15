@@ -1,0 +1,46 @@
+QTreeWidget {{
+    background-color: {bg_dark};
+    color: {text_main};
+    padding: 10px;
+    outline: none;
+    font-size: 14px;
+    spacing:10px;
+}}
+
+/* RAMI */
+QTreeWidget::branch {{
+    background: {bg_dark}; 
+    width: 10px; 
+    padding:2px;
+}}
+
+/* L'ITEM */
+QTreeWidget::item {{
+    background-color: {bg_dark};
+    color: {text_main};
+    width:100%;
+    padding:10px;
+    padding:2px;
+    padding-right:10px;
+}}
+
+QTreeWidget::item::!has-children:hover {{
+    background-color: {terziary_color};
+}}
+
+QTreeWidget::item:!has-children:selected {{
+    background-color: {primary_color};
+    color: #ffffff;
+    font-weight: bold;
+}}
+
+/* --- FRECCE --- */
+QTreeWidget::branch:has-children:!has-siblings:closed,
+QTreeWidget::branch:closed:has-children:has-siblings {{
+    image: url(gptviz/resources/assets/attention_navigator/chevron_right.svg);
+}}
+
+QTreeWidget::branch:open:has-children:!has-siblings,
+QTreeWidget::branch:open:has-children:has-siblings {{
+    image: url(gptviz/resources/assets/attention_navigator/chevron_down.svg);
+}}

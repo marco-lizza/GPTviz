@@ -17,7 +17,7 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'GPTViz=src.main:main',
+            'GPTViz=gptviz.main:main',
         ],
     },
 )
