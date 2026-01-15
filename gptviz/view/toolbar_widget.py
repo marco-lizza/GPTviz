@@ -48,7 +48,7 @@ class Toolbar(QToolBar):
         """
 
         # Azione 1: Import Data
-        icon_import =  QIcon("gptviz/resources/assets/utility/import.svg")
+        icon_import =  QIcon(settings.get_asset_path("utility/import.svg"))
         action_import = QAction(icon_import, "Import Data", self)
         action_import.setStatusTip("Import a new file .arrow")
         action_import.setShortcut("Ctrl+I") 
@@ -56,7 +56,7 @@ class Toolbar(QToolBar):
         self.addAction(action_import)
         
         # Azione 2: Reload
-        icon_reload = QIcon("gptviz/resources/assets/utility/reload.svg")
+        icon_reload = QIcon(settings.get_asset_path("utility/reload.svg"))
         action_reload = QAction(icon_reload, "Reload workspace", self)
         action_reload.setStatusTip("Reload workspace")
         action_reload.setShortcut("Ctrl+R") 
@@ -66,7 +66,7 @@ class Toolbar(QToolBar):
         self.addSeparator()
 
         # Azione 3: Clean console
-        icon_clean_console = QIcon("gptviz/resources/assets/utility/trash.svg")
+        icon_clean_console = QIcon(settings.get_asset_path("utility/trash.svg"))
         clean_console = QAction(icon_clean_console, "Clean console", self)
         clean_console.setStatusTip("Clean console")
         clean_console.setShortcut("Ctrl+C") 
@@ -79,7 +79,7 @@ class Toolbar(QToolBar):
         self.addWidget(spacer)
 
         # Azione 4: Exit (a destra)
-        icon_exit =  QIcon("gptviz/resources/assets/utility/close.svg")
+        icon_exit =  QIcon(settings.get_asset_path("utility/close.svg"))
         action_exit = QAction(icon_exit, "Exit", self)
         action_exit.setShortcut("Ctrl+E") 
         action_exit.triggered.connect(self.action_exit.emit)

@@ -88,7 +88,7 @@ class FileList(QTreeWidget):
         # Creazione Nodo Cartella
         dir_item = QTreeWidgetItem(self)
         dir_item.setText(0, domain)
-        dir_item.setIcon(0, QIcon("gptviz/resources/assets/file_icons/directory.svg"))
+        dir_item.setIcon(0, QIcon(settings.get_asset_path("file_icons/directory.svg")))
         dir_item.setData(0, Qt.ItemDataRole.UserRole, "dir")
 
         # Creazione Nodi File
@@ -101,7 +101,7 @@ class FileList(QTreeWidget):
             # Metadata: Valore (Nome file utile per il caricamento)
             file_item.setData(0, Qt.ItemDataRole.UserRole + 1, name)
             
-            file_item.setIcon(0, QIcon("gptviz/resources/assets/file_icons/arrow.svg"))
+            file_item.setIcon(0, QIcon(settings.get_asset_path("file_icons/arrow.svg")))
 
     def mouseMoveEvent(self, event):
         """

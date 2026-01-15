@@ -77,10 +77,10 @@ class AttentionControls(QFrame):
 
         if self.show_save_button:
             btn_save = QPushButton()
-            if QIcon("gptviz/resources/assets/utility/save.svg").isNull():
+            if QIcon(settings.get_asset_path("utility/save.svg")).isNull():
                 btn_save.setText("Save")
             else:
-                btn_save.setIcon(QIcon("gptviz/resources/assets/utility/save.svg"))
+                btn_save.setIcon(QIcon(settings.get_asset_path("utility/save.svg")))
                 btn_save.setIconSize(QSize(22, 22))
                 
             btn_save.setStyleSheet("""
@@ -106,7 +106,7 @@ class AttentionControls(QFrame):
         if not self.show_head_selector: return
         self.combo_heads.blockSignals(True) 
         self.combo_heads.clear()
-        icon = QIcon("gptviz/resources/assets/attention_navigator/item_icons/head.svg")
+        icon = QIcon(settings.get_asset_path("attention_navigator/item_icons/head.svg"))
         for i in range(count):
             self.combo_heads.addItem(icon, f"Head {i}")
         self.combo_heads.blockSignals(False)

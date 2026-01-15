@@ -62,7 +62,7 @@ class TokenGraphPane(QWidget):
 
         for idx in action_indices:
             token_word = all_tokens[idx]
-            icon_path = "gptviz/resources/assets/utility/token.svg" 
+            icon_path = settings.get_asset_path("utility/token.svg" )
             icon = QIcon(icon_path)
             self.token_selector.addItem(icon,f"{token_word}", idx)
             

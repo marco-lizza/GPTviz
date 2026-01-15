@@ -39,6 +39,18 @@ class SettingsManager:
         self.CONSOLE_PALETTE = DEFAULT_CONSOLE_PALETTE.copy()
         self.GRAPH_PALETTE = DEFAULT_GRAPH_PALETTE.copy()
 
+
+    def get_asset_path(self,sub_path: str) -> str:
+        """
+        Restituisce il percorso assoluto di un file dentro la cartella assets.
+        Esempio input: "attention_navigator/item_icons/head.svg"
+        """
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        package_root = os.path.dirname(current_dir)
+        full_path = os.path.join(package_root, "resources", "assets", sub_path)
+    
+        return full_path
+
     def get_stylesheet(self, filename: str) -> str:
         """
         Legge un file .qss e inietta dinamicamente i colori del tema corrente.

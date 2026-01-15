@@ -97,13 +97,13 @@ class Attention_navigator_widget(QWidget):
             iter_item = QTreeWidgetItem(self.tree)
             iter_item.setText(0, f"Iterazione {i}")
             iter_item.setData(0, Qt.ItemDataRole.UserRole, "iteration")
-            iter_item.setIcon(0, QIcon("gptviz/resources/assets/attention_navigator/item_icons/iteration.svg"))
+            iter_item.setIcon(0, QIcon(settings.get_asset_path("attention_navigator/item_icons/iteration.svg")))
             
             for l in range(num_levels):
                 level_item = QTreeWidgetItem(iter_item)
                 level_item.setText(0, f"Livello {l}")
                 level_item.setData(0, Qt.ItemDataRole.UserRole, "level")
-                level_item.setIcon(0, QIcon("gptviz/resources/assets/attention_navigator/item_icons/level.svg"))
+                level_item.setIcon(0, QIcon(settings.get_asset_path("attention_navigator/item_icons/level.svg")))
                 
                 level_item.setData(0, Qt.ItemDataRole.UserRole + 1, i)
                 level_item.setData(0, Qt.ItemDataRole.UserRole + 2, l)
