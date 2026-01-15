@@ -33,7 +33,11 @@ class AppModel(QObject):
     def __init__(self):
         """Inizializza il modello e il loader interno."""
         super().__init__()
-        self.loader = Attention_loader(self.base_path) 
+
+        try:
+            self.loader = Attention_loader(self.base_path)
+        except OSError as e:
+            self.log_message(f"<erro>{e}</erro>")
         self.actual_file = ""
 
     def load_file_names(self):

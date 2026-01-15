@@ -27,6 +27,12 @@ class Attention_loader:
             base_path (str): Directory radice dove cercare i file `.arrow`.
         """
         self.base_path = base_path
+
+        if not os.path.exists(self.base_path):
+            try:
+                os.makedirs(self.base_path)
+            except OSError:
+                raise OSError("Error during the creation of workspace directory")
         self.scanner = MetadataScanner(base_path)
         
         # Stato interno per la gestione del file aperto (Handle)

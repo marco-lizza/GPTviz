@@ -1,3 +1,5 @@
+from pathlib import Path
+
 DEFAULTS_MAIN_VALUE= {
     "K_VALUE": 5,
     "MIN_K_VALUE": 1,
@@ -9,7 +11,7 @@ DEFAULTS_MAIN_VALUE= {
     "TEXT_FONT": "Arial",
     "TEXT_SIZE": 10,
     "THEME_MODE": "dark",
-    "WORKSPACE_DIRECTORY": "gptviz/workspace",
+    "WORKSPACE_DIRECTORY": str(Path.home() / "Documents" / "GPTViz")
 } 
 
 DEFAULT_CONSOLE_PALETTE = {

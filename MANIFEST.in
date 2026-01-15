@@ -1,2 +1,1 @@
 recursive-include gptviz/resources *
-recursive-include gptviz/workspace .gitkeep
